@@ -1,7 +1,7 @@
-import { createPreview } from './view/App';
+import { createGame } from './view/App';
 import './style.css';
 
-createPreview().catch((error: unknown) => {
+createGame().catch((error: unknown) => {
   console.error('Tiny Sweepers could not start:', error);
   const message = document.createElement('p');
   message.className = 'boot-error';

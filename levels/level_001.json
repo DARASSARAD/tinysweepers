@@ -1,0 +1,12 @@
+{
+  "id": 1, "width": 6, "height": 6,
+  "palette": ["#65b9aa", "#efb65b", "#e68e91"],
+  "pixels": [0,0,0,0,0,0,0,1,1,1,1,0,0,1,2,2,1,0,0,1,2,2,1,0,0,1,1,1,1,0,0,0,0,0,0,0],
+  "lanes": [
+    [{"color":0,"capacity":5},{"color":1,"capacity":3}],
+    [{"color":0,"capacity":5},{"color":1,"capacity":3}],
+    [{"color":0,"capacity":5},{"color":1,"capacity":3}],
+    [{"color":0,"capacity":5},{"color":1,"capacity":3},{"color":2,"capacity":4}]
+  ],
+  "dockCount": 5
+}

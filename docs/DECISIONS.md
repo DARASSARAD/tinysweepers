@@ -6,3 +6,6 @@
 - Portal build modes currently compile the preview only. SDK adapters and monetization remain P6 work; these builds are not submission-ready.
 - Vite reserves the literal mode name `local`. A Node command wrapper maps the public `--mode local` option to Vite's `development` mode while retaining `dist/local/` and the local platform selection.
 - Git checkpoints use the explicit Codex <codex@localhost> author because no user identity is configured; user Git settings are unchanged.
+- P1 bot timing lives in the pure model so headless tests exercise the same reservations, deliveries, and dock lifecycle used on screen. Idle quotas wake on exposure events instead of polling.
+- P2–P4 share a generated local sprite atlas. Lifted cubes stay reserved in the board until delivery; the view reveals their mosaic tiles at pickup.
+- The first playable slice has three authored tutorial levels. It includes local saves, synthesized optional audio, keyboard controls, pause, and color symbols; portal SDKs remain a separate milestone.
