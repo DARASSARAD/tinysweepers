@@ -12,10 +12,10 @@ function option(name: string, fallback: string) {
 }
 const size = Number(option('size', '16'));
 const colorCount = Number(option('colors', '4'));
-const id = Number(option('id', '31'));
+const id = Number(option('id', '32'));
 const output = option('output', 'levels/generated.json');
 if (!input || !Number.isInteger(size) || size < 4 || size > 32 || !Number.isInteger(colorCount) || colorCount < 2 || colorCount > 8) {
-  throw new Error('Usage: npm run generate:level -- image.png --size 16 --colors 4 --id 31 --output levels/generated.json');
+  throw new Error('Usage: npm run generate:level -- image.png --size 16 --colors 4 --id 32 --output levels/generated.json');
 }
 const image = PNG.sync.read(await readFile(input));
 const samples = Array.from({ length: size * size }, (_, index) => {

@@ -49,3 +49,10 @@ Verified portal SDK adapters and account-based QA tools (P6), further art/audio 
 - Centered the board at 720 logical pixels, adding 80 pixels of clearance above the dustbin and docks.
 - 59 tests pass, including collection-order regression tests and all 30 real-timing level play-throughs.
 - Browser check confirmed that a five-bot crate clears five bottom-row cubes first, with no console warnings/errors. Screenshot: `docs/bottom-first-preview.jpg`.
+
+## Reference heart level
+
+- Added level 31, Starlight heart: 19×19 cells, 248 pink/cyan/yellow blocks, two yellow stars, empty exterior, and 29 balanced crates across four lanes.
+- Traced the supplied reference's grid and excluded its white text overlay. Tight gaps and proportional bot/cargo sizes support this denser board.
+- Constructive solution and bounded solver both pass; all 31 levels pass real bot-timing play-throughs. Total: 61 tests.
+- Direct play: `http://127.0.0.1:5173/?level=31`. Screenshot: `docs/heart-level-preview.jpg`.

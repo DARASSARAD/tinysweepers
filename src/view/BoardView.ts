@@ -18,22 +18,24 @@ export class BoardView extends Container {
     const { boardX, boardY, boardSize } = Config.layout;
     this.position.set(boardX, boardY);
     this.cellSize = boardSize / Math.max(model.level.width, model.level.height);
+    const tileGap = Math.min(Config.layout.tileGap, this.cellSize * Config.layout.cellGapRatio);
+    const cubeGap = Math.min(Config.layout.cubeGap, this.cellSize * Config.layout.cellGapRatio);
     this.addChild(new Graphics().roundRect(-22, -22, boardSize + 44, boardSize + 44, 44).fill('#d8d0be')
       .roundRect(-16, -20, boardSize + 32, boardSize + 32, 40).fill('#f9f6ed'));
     model.level.pixels.forEach((color, index) => {
+      if (color < 0) return;
       const { x, y } = this.cellPosition(index);
       // The permanent floor mosaic appears as dust is lifted.
-      const tile = new Graphics().roundRect(x - this.cellSize / 2 + 3, y - this.cellSize / 2 + 3, this.cellSize - 6, this.cellSize - 6, 12)
-        .fill(color < 0 ? '#f0e9db' : model.level.palette[color]);
+      const tile = new Graphics().roundRect(x - this.cellSize / 2 + tileGap / 2, y - this.cellSize / 2 + tileGap / 2, this.cellSize - tileGap, this.cellSize - tileGap, Math.min(12, this.cellSize * 0.15))
+        .fill(model.level.palette[color]);
       tile.alpha = 0.35;
       this.tiles.push(tile);
       this.addChild(tile);
-      if (color < 0) return;
       const cube = new Sprite(atlas.cube);
       cube.anchor.set(0.5);
       cube.position.set(x, y);
-      cube.width = this.cellSize - 8;
-      cube.height = this.cellSize - 8;
+      cube.width = this.cellSize - cubeGap;
+      cube.height = this.cellSize - cubeGap;
       cube.tint = model.level.palette[color];
       this.addChild(cube);
       this.cubes.set(index, cube);

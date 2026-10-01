@@ -17,3 +17,5 @@
 - Waiting bots are represented by an unassigned quota on their docked crate; pooled moving sprites are created when a cube reservation is available.
 - Completion reveals full-color floor tiles with a shine sweep and places the result panel below the mosaic.
 - Collection order now prioritizes the bottommost exposed matching row, left-to-right within that row, including newly exposed cubes. The board is centered at 720 logical pixels wide to add 80 logical pixels of clearance above the bin/docks without moving or crowding the crate controls.
+- Level 31 traces the supplied reference as a 19×19 pink/cyan/yellow heart with two yellow stars. White overlay text is excluded and exterior cells are empty floor, preserving the silhouette. Its 248 cubes are balanced against 29 crates and the saved lane solution passes real bot timing.
+- Dense boards use proportional cell gaps and bot/cargo sizing. `?level=<id>` opens a particular level for direct play and preview.

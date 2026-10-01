@@ -11,15 +11,19 @@ export class BotView extends Container {
     super();
     this.body = new Sprite(atlas.bot);
     this.body.anchor.set(0.5);
-    this.body.width = this.body.height = 60;
+    this.body.width = this.body.height = Config.layout.botSize;
     this.cargo = new Sprite(atlas.cube);
     this.cargo.anchor.set(0.5);
-    this.cargo.width = this.cargo.height = 28;
+    this.cargo.width = this.cargo.height = Config.layout.cargoSize;
     this.cargo.position.set(0, -34);
     this.addChild(this.body, this.cargo);
   }
 
   sync(bot: BotTask, model: GameModel, board: BoardView) {
+    const size = Math.min(Config.layout.botSize, board.cellSize * Config.layout.botCellRatio);
+    this.body.width = this.body.height = size;
+    this.cargo.width = this.cargo.height = Math.min(Config.layout.cargoSize, board.cellSize * Config.layout.cargoCellRatio);
+    this.cargo.y = -size * 0.56;
     const dock = { x: (Config.designWidth - (model.level.dockCount - 1) * Config.layout.dockSpacing) / 2
       + bot.dock * Config.layout.dockSpacing, y: Config.layout.dockY };
     const cell = board.cellPosition(bot.cell);

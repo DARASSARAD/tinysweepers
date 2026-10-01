@@ -11,7 +11,8 @@
     "check:external": "node tools/check-external.mjs",
     "package": "node tools/package.mjs",
     "generate:campaign": "tsx tools/level-generator/campaign.ts",
-    "generate:level": "tsx tools/level-generator/index.ts"
+    "generate:level": "tsx tools/level-generator/index.ts",
+    "generate:heart": "tsx tools/level-generator/heart.ts"
   },
   "dependencies": {
     "fflate": "^0.8.3",

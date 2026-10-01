@@ -50,6 +50,9 @@ export async function createGame() {
     const progress = Number(await platform.loadData(Config.progressKey) ?? 0);
     if (Number.isInteger(progress) && progress >= 0 && progress < levels.length) levelIndex = progress;
   } catch { /* Ignore corrupt saves. */ }
+  const requestedLevel = Number(new URLSearchParams(location.search).get('level'));
+  const requestedIndex = levels.findIndex(level => level.id === requestedLevel);
+  if (requestedIndex >= 0) levelIndex = requestedIndex;
 
   const atlas = createAtlas(app);
   const floor = new Graphics();
