@@ -7,7 +7,13 @@ describe('authored starter levels', () => {
   it.each(levels)('level $id validates and can be won using real bot timing', level => {
     validate(level);
     const game = new GameModel(level);
-    for (let step = 0; step < 2000 && game.state === 'Playing'; step++) {
+    if (level.solution) {
+      for (const lane of level.solution) {
+        expect(game.placeCrate(lane)).toBe(true);
+        for (let tick = 0; tick < 4000 && game.bots.size; tick++) game.update(50);
+      }
+    }
+    for (let step = 0; step < 4000 && game.state === 'Playing'; step++) {
       for (let lane = 0; lane < level.lanes.length; lane++) {
         const crate = game.dockModel.peek(lane);
         if (crate && game.board.canClaim(crate.color)) game.placeCrate(lane);

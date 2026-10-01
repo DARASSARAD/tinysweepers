@@ -1,7 +1,6 @@
-import first from '../../levels/level_001.json';
-import second from '../../levels/level_002.json';
-import third from '../../levels/level_003.json';
 import type { LevelData } from './LevelData';
 
-export const levels: LevelData[] = [first, second, third];
-export const levelNames = ['First steps', 'A little sunshine', 'Choose your order'];
+const files = import.meta.glob<LevelData>('../../levels/level_*.json', { eager: true, import: 'default' });
+export const levels = Object.values(files).sort((a, b) => a.id - b.id);
+const tutorialNames = ['First steps', 'A little sunshine', 'Choose your order'];
+export const levelNames = levels.map(level => level.title ?? tutorialNames[level.id - 1] ?? `Room ${level.id}`);

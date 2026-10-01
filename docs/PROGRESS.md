@@ -16,10 +16,16 @@
 ## P2–P4 — playable slice
 
 - Shared cube/bot/crate atlas, board mosaic, pooled animated bots and particles, lane controls, and five charging docks.
-- Three validated starter levels pass headless full-game play-throughs.
+- Shared rendering is fully playable with validated starter levels.
 - Local win/retry/next flow, pause, safe storage, sound toggle, and color-symbol mode added.
-- Browser play-through and viewport QA in progress.
+- Browser deliveries, waiting-crate wakeups, dock release, and pause verified. Responsive fit tested in phone and landscape dimensions.
+
+## P7 — completed 2026-10-01
+
+- 30 validated campaign files with nine original pixel motifs and a gradual size ramp.
+- Constructive crate generator, bounded DFS solver, PNG import CLI, and real-timing campaign simulations.
+- 48 tests pass, including the known-unsolvable fixture and all campaign play-throughs.
 
 ## Remaining
 
-Platform event guard/ad mocks (P5), verified portal SDK adapters (P6), level tooling and 30-level content (P7), further presentation polish and portal submission QA (P8–P9).
+Platform event guard/ad mocks (P5), verified portal SDK adapters (P6), further presentation polish and portal submission QA (P8–P9).

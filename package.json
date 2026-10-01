@@ -9,7 +9,9 @@
     "test": "vitest run",
     "lint": "eslint src tests tools vite.config.ts",
     "check:external": "node tools/check-external.mjs",
-    "package": "node tools/package.mjs"
+    "package": "node tools/package.mjs",
+    "generate:campaign": "tsx tools/level-generator/campaign.ts",
+    "generate:level": "tsx tools/level-generator/index.ts"
   },
   "dependencies": {
     "fflate": "^0.8.3",
@@ -18,8 +20,11 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.3",
+    "@types/pngjs": "^6.0.5",
     "eslint": "^10.11.0",
     "globals": "^17.13.0",
+    "pngjs": "^7.0.0",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.0",
     "vite": "^8.3.2",

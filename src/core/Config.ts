@@ -11,4 +11,5 @@ export const Config = {
   effects: { puffMs: 420, puffCount: 6, volume: 0.07 },
   progressKey: 'tiny-sweepers-progress-v1',
   settingsKey: 'tiny-sweepers-settings-v1',
+  levels: { laneCount: 4, earlyCapacity: 6, lateCapacity: 9, maxSolverStates: 30000, settleSteps: 4000 },
 } as const;

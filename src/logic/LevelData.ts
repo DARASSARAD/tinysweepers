@@ -8,6 +8,8 @@ export interface LevelData {
   pixels: number[];
   lanes: CrateData[][];
   dockCount: number;
+  title?: string;
+  solution?: number[];
 }
 
 export function validate(level: LevelData): void {
