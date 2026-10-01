@@ -1,7 +1,7 @@
 {
   "id": 16,
-  "width": 10,
-  "height": 10,
+  "width": 8,
+  "height": 8,
   "palette": [
     "#b3bedb",
     "#e68e91",
@@ -12,172 +12,129 @@
     0,
     0,
     0,
-    0,
-    1,
-    1,
-    1,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
     1,
     1,
     0,
     0,
     0,
     0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    1,
     0,
     0,
     0,
     1,
-    1,
-    1,
-    0,
-    0,
-    0,
-    0,
-    0,
     2,
     2,
-    2,
-    2,
-    2,
-    2,
-    2,
+    1,
     0,
     0,
-    0,
+    1,
+    1,
     2,
     3,
-    2,
-    2,
-    2,
     3,
     2,
-    0,
-    0,
-    0,
-    2,
     1,
-    2,
-    2,
-    2,
-    1,
-    2,
-    0,
-    0,
-    0,
-    2,
-    1,
-    2,
-    2,
-    2,
-    1,
-    2,
-    0,
-    0,
-    0,
-    2,
-    2,
     1,
     1,
     1,
     2,
-    2,
-    0,
-    0,
-    0,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
-    0,
-    0,
-    0,
     3,
-    0,
-    0,
-    0,
-    0,
-    0,
     3,
+    2,
+    1,
+    1,
+    0,
+    0,
+    1,
+    2,
+    2,
+    1,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
     0
   ],
-  "title": "Friendly bot",
+  "title": "Sunny window",
   "lanes": [
     [
       {
         "color": 0,
-        "capacity": 9
+        "capacity": 6
       },
       {
         "color": 0,
-        "capacity": 9
+        "capacity": 6
+      },
+      {
+        "color": 3,
+        "capacity": 4
+      }
+    ],
+    [
+      {
+        "color": 0,
+        "capacity": 6
+      },
+      {
+        "color": 1,
+        "capacity": 6
+      },
+      {
+        "color": 0,
+        "capacity": 4
+      }
+    ],
+    [
+      {
+        "color": 1,
+        "capacity": 6
       },
       {
         "color": 2,
-        "capacity": 9
+        "capacity": 6
       },
       {
-        "color": 0,
+        "color": 2,
         "capacity": 2
       }
     ],
     [
       {
         "color": 0,
-        "capacity": 9
-      },
-      {
-        "color": 2,
-        "capacity": 9
-      },
-      {
-        "color": 1,
-        "capacity": 7
-      }
-    ],
-    [
-      {
-        "color": 0,
-        "capacity": 9
-      },
-      {
-        "color": 2,
-        "capacity": 9
-      },
-      {
-        "color": 2,
         "capacity": 6
-      }
-    ],
-    [
-      {
-        "color": 0,
-        "capacity": 9
       },
       {
         "color": 1,
-        "capacity": 9
+        "capacity": 6
       },
       {
-        "color": 3,
-        "capacity": 4
+        "color": 1,
+        "capacity": 6
       }
     ]
   ],
   "dockCount": 5,
   "solution": [
-    0,
-    1,
-    2,
     3,
     0,
     1,
@@ -187,6 +144,8 @@
     1,
     2,
     3,
-    0
+    0,
+    1,
+    2
   ]
 }

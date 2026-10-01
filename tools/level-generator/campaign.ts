@@ -30,7 +30,7 @@ for (let id = 4; id <= 30; id++) {
     const y = Math.floor(Math.floor(index / size) * 8 / size);
     return Number(motif.rows[y][x]);
   });
-  const level = generateLevel(id, size, size, palettes[Math.floor((id - 4) / motifs.length)], pixels,
+  const level = generateLevel(id + 1, size, size, palettes[Math.floor((id - 4) / motifs.length)], pixels,
     motif.name, id <= 15 ? Config.levels.earlyCapacity : Config.levels.lateCapacity);
   const solved = solve(level);
   if (solved.status !== 'solvable') throw new Error(`Level ${id} search failed: ${solved.status}`);
@@ -40,6 +40,6 @@ for (let id = 4; id <= 30; id++) {
     for (let tick = 0; tick < Config.levels.settleSteps && game.bots.size; tick++) game.update(50);
   }
   if (game.state !== 'Won') throw new Error(`Level ${id}: timed simulation failed`);
-  await writeFile(`levels/level_${String(id).padStart(3, '0')}.json`, `${JSON.stringify(level, null, 2)}\n`);
-  console.log(`Level ${id}: ${motif.name}, ${size}×${size}, ${level.lanes.flat().length} crates, solvable`);
+  await writeFile(`levels/level_${String(level.id).padStart(3, '0')}.json`, `${JSON.stringify(level, null, 2)}\n`);
+  console.log(`Level ${level.id}: ${motif.name}, ${size}×${size}, ${level.lanes.flat().length} crates, solvable`);
 }

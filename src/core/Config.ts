@@ -10,7 +10,7 @@ export const Config = {
   layout: { floorTile: 96, boardX: 180, boardY: 340, boardSize: 720, dockY: 1320, laneY: 1570, laneSpacing: 195, dockSpacing: 184, binX: 540, binY: 1190,
     cubeGap: 8, tileGap: 6, cellGapRatio: 0.08, botSize: 60, botCellRatio: 0.8, cargoSize: 28, cargoCellRatio: 0.45 },
   effects: { puffMs: 420, puffCount: 6, volume: 0.07, shineMs: 1100 },
-  progressKey: 'tiny-sweepers-progress-v1',
+  progressKey: 'tiny-sweepers-progress-v2',
   settingsKey: 'tiny-sweepers-settings-v1',
   levels: { laneCount: 4, earlyCapacity: 6, lateCapacity: 9, maxSolverStates: 30000, settleSteps: 4000 },
   ads: { firstCommercialAfterLevel: 3, cooldownMs: 120000, timeoutMs: 15000, mockDurationMs: 1500 },

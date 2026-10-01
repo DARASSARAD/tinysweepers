@@ -56,3 +56,8 @@ Verified portal SDK adapters and account-based QA tools (P6), further art/audio 
 - Traced the supplied reference's grid and excluded its white text overlay. Tight gaps and proportional bot/cargo sizes support this denser board.
 - Constructive solution and bounded solver both pass; all 31 levels pass real bot-timing play-throughs. Total: 61 tests.
 - Direct play: `http://127.0.0.1:5173/?level=31`. Screenshot: `docs/heart-level-preview.jpg`.
+
+## Heart promoted to level 1
+
+- Starlight heart is now the first puzzle. The original campaign follows as levels 2–31, with tutorial titles preserved.
+- Generation scripts and direct links follow the new numbering. The reordered campaign has its own progress key and starts at the heart.

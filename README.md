@@ -23,7 +23,7 @@ Other build modes: `npm run build -- --mode poki` and `npm run build -- --mode c
 
 The playable game has 31 puzzles, five charging docks, colored crate stacks, animated sweepers, retry/next flow, saved progress, sound, and color symbols. Portal SDKs are not implemented yet.
 
-Level 31, **Starlight heart**, follows the supplied pink/cyan/yellow heart reference. Open `http://127.0.0.1:5173/?level=31` to play it directly.
+Level 1, **Starlight heart**, follows the supplied pink/cyan/yellow heart reference. Open `http://127.0.0.1:5173/?level=1` to play it directly.
 
 Tap only the top crate in a lane. Each sweeper collects one matching exposed cube. Leave dock space for colors on the outside of the mosaic. A blocked crate waits until deliveries expose its color.
 

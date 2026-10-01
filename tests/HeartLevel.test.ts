@@ -2,8 +2,10 @@ import { expect, it } from 'vitest';
 import { levels } from '../src/logic/Levels';
 
 it('keeps the reference heart silhouette symmetric with two separate yellow stars', () => {
-  const heart = levels.find(level => level.id === 31)!;
+  const heart = levels[0];
   expect(heart).toBeDefined();
+  expect(heart.id).toBe(1);
+  expect(heart.title).toBe('Starlight heart');
   expect(heart.width).toBe(19);
   expect(heart.height).toBe(19);
   expect(heart.palette).toHaveLength(3);

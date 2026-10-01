@@ -23,8 +23,8 @@ describe('authored starter levels', () => {
     expect(game.state).toBe('Won');
     expect(game.board.remaining).toBe(0);
   });
-  it('level 3 leaves inner-color crates waiting until the border is cleared', () => {
-    const game = new GameModel(levels[2]);
+  it('the mixed-order tutorial leaves inner-color crates waiting until the border is cleared', () => {
+    const game = new GameModel(levels.find(level => level.title === 'Choose your order')!);
     expect(game.placeCrate(0)).toBe(true);
     expect(game.placeCrate(1)).toBe(true);
     expect(game.board.remaining).toBe(64);
