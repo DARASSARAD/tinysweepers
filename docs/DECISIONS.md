@@ -16,3 +16,4 @@
 - Ad-request timeouts recover requests when the adapter reports no active ad. A legitimate active ad keeps input/audio paused and retains its eventual confirmed reward.
 - Waiting bots are represented by an unassigned quota on their docked crate; pooled moving sprites are created when a cube reservation is available.
 - Completion reveals full-color floor tiles with a shine sweep and places the result panel below the mosaic.
+- Collection order now prioritizes the bottommost exposed matching row, left-to-right within that row, including newly exposed cubes. The board is centered at 720 logical pixels wide to add 80 logical pixels of clearance above the bin/docks without moving or crowding the crate controls.

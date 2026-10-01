@@ -42,3 +42,10 @@
 ## Remaining
 
 Verified portal SDK adapters and account-based QA tools (P6), further art/audio polish, phone performance playtests, and submission assets/reviews (P8–P9). Current portal modes use an offline local fallback with no monetization.
+
+## Bottom-first collection and spacing update
+
+- Bots now claim the lowest exposed matching row first, left-to-right. Newly exposed blocks follow the same priority; the level solver uses the same direction.
+- Centered the board at 720 logical pixels, adding 80 pixels of clearance above the dustbin and docks.
+- 59 tests pass, including collection-order regression tests and all 30 real-timing level play-throughs.
+- Browser check confirmed that a five-bot crate clears five bottom-row cubes first, with no console warnings/errors. Screenshot: `docs/bottom-first-preview.jpg`.

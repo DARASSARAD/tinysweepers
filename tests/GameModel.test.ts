@@ -19,6 +19,20 @@ describe('level validation', () => {
 });
 
 describe('board reservations and exposure', () => {
+  it('claims matching exposed cubes from the bottom row upward, left-to-right', () => {
+    const board = new BoardModel(level);
+    const claims = Array.from({ length: 8 }, (_, bot) => board.tryClaim(0, bot));
+    expect(claims).toEqual([6, 7, 8, 3, 5, 0, 1, 2]);
+  });
+  it('prioritizes newly exposed lower cubes over older upper targets', () => {
+    const board = new BoardModel({ ...level, pixels: Array(9).fill(0) });
+    const bottom = [board.tryClaim(0, 1), board.tryClaim(0, 2), board.tryClaim(0, 3)];
+    expect(bottom).toEqual([6, 7, 8]);
+    board.remove(7, 2); // Center is appended to the exposed set after upper cubes.
+    expect(board.tryClaim(0, 4)).toBe(3);
+    expect(board.tryClaim(0, 5)).toBe(4);
+    expect(board.tryClaim(0, 6)).toBe(5);
+  });
   it('never reserves a cube twice or gives a bot two cubes', () => {
     const board = new BoardModel(level);
     const first = board.tryClaim(0, 1);

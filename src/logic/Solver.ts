@@ -27,11 +27,14 @@ export function solve(level: LevelData, maxStates: number = Config.levels.maxSol
     while (progress) {
       progress = false;
       for (const crate of state.docks) {
-        for (let i = 0; i < state.cells.length && crate.capacity > 0; i++) {
-          if (state.cells[i] === crate.color && exposed(state.cells, i)) {
-            state.cells[i] = -1;
-            crate.capacity--;
-            progress = true;
+        for (let row = level.height - 1; row >= 0 && crate.capacity > 0; row--) {
+          for (let column = 0; column < level.width && crate.capacity > 0; column++) {
+            const index = row * level.width + column;
+            if (state.cells[index] === crate.color && exposed(state.cells, index)) {
+              state.cells[index] = -1;
+              crate.capacity--;
+              progress = true;
+            }
           }
         }
       }

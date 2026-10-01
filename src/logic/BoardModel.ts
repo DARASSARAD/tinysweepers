@@ -49,13 +49,18 @@ export class BoardModel {
   tryClaim(color: number, botId: number): number | null {
     // A bot may own one reservation only, even if called twice.
     if ([...this.reservations.values()].includes(botId)) return null;
+    let target: number | null = null;
     for (const index of this.exposed) {
       if (this.cells[index] === color && !this.reservations.has(index)) {
-        this.reservations.set(index, botId);
-        return index;
+        const row = Math.floor(index / this.level.width);
+        const targetRow = target === null ? -1 : Math.floor(target / this.level.width);
+        // Start nearest the docks, then work left-to-right within each row.
+        // Compare coordinates instead of relying on exposure-set insertion order.
+        if (row > targetRow || (row === targetRow && target !== null && index < target)) target = index;
       }
     }
-    return null;
+    if (target !== null) this.reservations.set(target, botId);
+    return target;
   }
 
   remove(index: number, botId: number): boolean {
