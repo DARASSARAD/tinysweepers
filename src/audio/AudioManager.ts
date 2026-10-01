@@ -3,15 +3,16 @@ import { Config } from '../core/Config';
 export class AudioManager {
   private context: AudioContext | null = null;
   enabled = true;
+  adMuted = false;
   unlock() {
-    if (!this.enabled) return;
+    if (!this.enabled || this.adMuted || document.hidden) return;
     try {
       this.context ??= new AudioContext();
       if (this.context.state === 'suspended') void this.context.resume().catch(() => {});
     } catch { /* Audio is optional. */ }
   }
   tone(frequency: number, duration = 0.1, delay = 0) {
-    if (!this.enabled || !this.context || this.context.state !== 'running') return;
+    if (!this.enabled || this.adMuted || !this.context || this.context.state !== 'running') return;
     const context = this.context;
     const oscillator = context.createOscillator();
     const gain = context.createGain();

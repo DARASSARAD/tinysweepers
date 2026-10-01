@@ -12,3 +12,7 @@
 - P7 expands the campaign to 30 puzzles using nine original 8×8 pixel motifs, palette variations, and gradual 8/10/12-cell board sizes. Each generated puzzle includes a constructive lane-order solution and passes the real-timing game simulation.
 - The DFS solver uses settled states: docked crates immediately peel matching exposed cells up to their remaining capacity. It distinguishes a search budget limit from a proof of unsolvability. Visited states and occupied docks are difficulty indicators, not a count of all winning sequences.
 - PNG tooling downsamples at cell centers, quantizes frequent RGB bins, maps remaining samples to the nearest palette color, and treats mostly transparent samples as empty floor. Constructive crate ordering preserves a verified solution.
+- P5 wires gameplay lifecycle and safe saves through a guarded local platform. Mock ads are local development controls only; portal builds exclude the simulator and use the offline adapter until SDK integration is verified.
+- Ad-request timeouts recover requests when the adapter reports no active ad. A legitimate active ad keeps input/audio paused and retains its eventual confirmed reward.
+- Waiting bots are represented by an unassigned quota on their docked crate; pooled moving sprites are created when a cube reservation is available.
+- Completion reveals full-color floor tiles with a shine sweep and places the result panel below the mosaic.

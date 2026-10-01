@@ -8,6 +8,9 @@ export class BoardView extends Container {
   private readonly cubes = new Map<number, Sprite>();
   private readonly marks = new Map<number, Graphics>();
   private readonly debug = new Graphics();
+  private readonly shine = new Graphics();
+  private readonly tiles: Graphics[] = [];
+  private shineElapsed = 0;
   readonly cellSize: number;
 
   constructor(private readonly model: GameModel, atlas: GameAtlas, symbols: boolean) {
@@ -23,6 +26,7 @@ export class BoardView extends Container {
       const tile = new Graphics().roundRect(x - this.cellSize / 2 + 3, y - this.cellSize / 2 + 3, this.cellSize - 6, this.cellSize - 6, 12)
         .fill(color < 0 ? '#f0e9db' : model.level.palette[color]);
       tile.alpha = 0.35;
+      this.tiles.push(tile);
       this.addChild(tile);
       if (color < 0) return;
       const cube = new Sprite(atlas.cube);
@@ -37,7 +41,7 @@ export class BoardView extends Container {
       mark.visible = symbols;
       this.marks.set(index, mark);
     });
-    this.addChild(this.debug);
+    this.addChild(this.debug, this.shine);
   }
 
   cellPosition(index: number) {
@@ -46,6 +50,7 @@ export class BoardView extends Container {
   }
 
   sync(symbols: boolean) {
+    this.tiles.forEach(tile => { tile.alpha = this.model.state === 'Won' ? 1 : 0.35; });
     const lifted = new Set([...this.model.bots.values()].filter(bot => bot.phase === 'inbound' || bot.phase === 'return').map(bot => bot.cell));
     for (const [index, cube] of this.cubes) {
       cube.visible = this.model.board.cells[index] >= 0 && !lifted.has(index);
@@ -60,5 +65,17 @@ export class BoardView extends Container {
           .stroke({ color: '#314c49', width: 4 });
       }
     }
+  }
+
+  update(delta: number) {
+    this.shine.clear();
+    if (this.model.state !== 'Won') return;
+    this.shineElapsed += delta;
+    const progress = Math.min(1, this.shineElapsed / Config.effects.shineMs);
+    const x = progress * (Config.layout.boardSize + 120) - 60;
+    const left = Math.max(0, x - 60);
+    const right = Math.min(Config.layout.boardSize, x + 60);
+    if (right > left) this.shine.rect(left, 0, right - left, Config.layout.boardSize)
+      .fill({ color: '#ffffff', alpha: 0.5 * (1 - progress) });
   }
 }

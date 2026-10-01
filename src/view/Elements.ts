@@ -15,7 +15,7 @@ export function button(parent: Container, content: string, x: number, y: number,
   const label = text(item, content, 0, 0, 32, '#fffaf0');
   item.eventMode = 'static';
   item.cursor = 'pointer';
-  item.hitArea = new Rectangle(-width / 2, -60, width, 120);
+  item.hitArea = new Rectangle(-width / 2, -80, width, 160);
   item.on('pointertap', onTap);
   parent.addChild(item);
   return { item, label };

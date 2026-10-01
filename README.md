@@ -27,6 +27,8 @@ Tap only the top crate in a lane. Each sweeper collects one matching exposed cub
 
 Keyboard: **1–4** select lanes, **R** retries, **Space/Escape** pauses, **M** toggles sound, **P** toggles symbols, **N** continues after a win.
 
+Local developer control: **D** opens an ad simulator for testing paused input/audio, blocked ads, and confirmed/failed rewards. It is excluded from portal builds.
+
 ## Level tooling
 
 ```sh
