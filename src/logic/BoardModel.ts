@@ -7,6 +7,7 @@ export class BoardModel {
   readonly reservations = new Map<number, number>();
   readonly exposureChanged = new Events<number>();
   private count: number;
+  private readonly reachable = new Set<number>();
 
   constructor(readonly level: LevelData, private readonly exposureRequired = true) {
     this.cells = [...level.pixels];
@@ -14,6 +15,21 @@ export class BoardModel {
     this.cells.forEach((color, index) => {
       if (color >= 0 && this.isExposed(index)) this.exposed.add(index);
     });
+    this.refreshReachable();
+  }
+
+  private refreshReachable() {
+    this.reachable.clear();
+    const visited = new Set<number>();
+    const queue: number[] = [];
+    const visit = (index: number) => {
+      if (this.cells[index] >= 0) { this.reachable.add(index); return; }
+      if (!visited.has(index)) { visited.add(index); queue.push(index); }
+    };
+    const { width, height } = this.level;
+    for (let x = 0; x < width; x++) { visit(x); visit((height - 1) * width + x); }
+    for (let y = 0; y < height; y++) { visit(y * width); visit(y * width + width - 1); }
+    for (let head = 0; head < queue.length; head++) this.neighbors(queue[head]).forEach(visit);
   }
 
   get remaining() { return this.count; }
@@ -41,7 +57,8 @@ export class BoardModel {
 
   canClaim(color: number): boolean {
     for (const index of this.exposed) {
-      if (this.cells[index] === color && !this.reservations.has(index)) return true;
+      if (this.cells[index] === color && !this.reservations.has(index)
+        && (!this.exposureRequired || this.reachable.has(index))) return true;
     }
     return false;
   }
@@ -51,7 +68,8 @@ export class BoardModel {
     if ([...this.reservations.values()].includes(botId)) return null;
     let target: number | null = null;
     for (const index of this.exposed) {
-      if (this.cells[index] === color && !this.reservations.has(index)) {
+      if (this.cells[index] === color && !this.reservations.has(index)
+        && (!this.exposureRequired || this.reachable.has(index))) {
         const row = Math.floor(index / this.level.width);
         const targetRow = target === null ? -1 : Math.floor(target / this.level.width);
         // Start nearest the docks, then work left-to-right within each row.
@@ -73,6 +91,7 @@ export class BoardModel {
     for (const neighbor of this.neighbors(index)) {
       if (this.cells[neighbor] >= 0) this.exposed.add(neighbor);
     }
+    this.refreshReachable();
     this.exposureChanged.emit(index);
     return true;
   }

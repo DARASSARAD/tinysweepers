@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { Config } from '../src/core/Config';
 import { BoardModel } from '../src/logic/BoardModel';
 import { DockModel } from '../src/logic/DockModel';
 import { GameModel } from '../src/logic/GameModel';
@@ -66,13 +67,62 @@ describe('crate lanes and docks', () => {
     expect(docks.peek(0)?.color).toBe(1);
     expect(docks.place(0)).toBeNull();
     expect(docks.free(0)).toBe(false);
-    docks.docks[0]!.undelivered = 0;
+    docks.docks[0]!.atDock = 0;
     expect(docks.free(0)).toBe(true);
     expect(docks.place(0)).toBe(0);
   });
 });
 
 describe('game state and bot cycle', () => {
+  it('reuses a dock after departure while its previous robots finish delivery', () => {
+    const game = new GameModel({ ...level, dockCount: 1 });
+    game.placeCrate(0);
+    game.update(Config.motion.staggerMs * 7 + 1);
+    expect(game.dockModel.docks[0]).toBeNull();
+    expect(game.bots.size).toBeGreaterThan(0);
+    expect(game.placeCrate(1)).toBe(true);
+    for (let i = 0; i < 600; i++) game.update(50);
+    expect(game.state).toBe('Won');
+    expect(game.bots.size).toBe(0);
+  });
+  it('emits collection at pickup completion before dustbin delivery', () => {
+    const game = new GameModel(level);
+    const events: string[] = [];
+    game.events.on(event => events.push(event.type));
+    game.placeCrate(0);
+    game.update([...game.bots.values()][0].travelMs.outbound + Config.motion.pickupMs - 1);
+    expect(events).not.toContain('collected');
+    game.update(1);
+    expect(events.filter(type => type === 'collected')).toHaveLength(1);
+    expect(events).not.toContain('delivered');
+  });
+  it('counts down at departure, including staggered departures', () => {
+    const game = new GameModel(level);
+    game.placeCrate(0);
+    const crate = game.dockModel.docks[0]!;
+    expect(crate.atDock).toBe(8);
+    game.update(1);
+    expect(crate.atDock).toBe(7);
+    expect(crate.undelivered).toBe(8);
+    game.update(Config.motion.staggerMs);
+    expect(crate.atDock).toBe(6);
+    game.update(Config.motion.staggerMs * 6);
+    expect(crate.atDock).toBe(0);
+    expect(crate.undelivered).toBe([...game.bots.values()].filter(bot => bot.crateId === crate.id).length);
+  });
+  it('removes a robot exactly when it arrives at the dustbin', () => {
+    const game = new GameModel(level);
+    game.placeCrate(0);
+    const id = [...game.bots.keys()][0];
+    const bot = game.bots.get(id)!;
+    game.update(bot.travelMs.outbound + Config.motion.pickupMs + bot.travelMs.inbound - 1);
+    expect(game.bots.get(id)?.phase).toBe('inbound');
+    const remaining = game.board.remaining;
+    game.update(1);
+    expect(game.bots.has(id)).toBe(false);
+    expect(game.board.remaining).toBe(remaining - 1);
+    expect(game.dockModel.docks[0]).toBeNull();
+  });
   it('wakes a waiting crate after delivery, clears cubes, frees docks, and wins', () => {
     const game = new GameModel(level);
     game.placeCrate(1); // Inner color must wait.
@@ -80,7 +130,7 @@ describe('game state and bot cycle', () => {
     game.placeCrate(0);
     expect(game.state).toBe('Playing');
     expect(game.board.remaining).toBe(9);
-    for (let i = 0; i < 150; i++) game.update(50);
+    for (let i = 0; i < 600; i++) game.update(50);
     expect(game.board.remaining).toBe(0);
     expect(game.state).toBe('Won');
     expect(game.dockModel.docks.every(crate => crate === null)).toBe(true);
@@ -96,17 +146,17 @@ describe('game state and bot cycle', () => {
     const game = new GameModel({ ...level, dockCount: 1 });
     game.placeCrate(0);
     expect(game.state).toBe('Playing');
-    for (let i = 0; i < 100; i++) game.update(50);
+    for (let i = 0; i < 600; i++) game.update(50);
     expect(game.dockModel.docks[0]).toBeNull();
     expect(game.state).toBe('Playing');
     game.placeCrate(1);
-    for (let i = 0; i < 100; i++) game.update(50);
+    for (let i = 0; i < 600; i++) game.update(50);
     expect(game.state).toBe('Won');
   });
   it('keeps a picked-up cube reserved until delivery', () => {
     const game = new GameModel(level);
     game.placeCrate(0);
-    game.update(850);
+    game.update([...game.bots.values()][0].travelMs.outbound + Config.motion.pickupMs + 20);
     expect([...game.bots.values()][0].phase).toBe('inbound');
     expect(game.board.remaining).toBe(9);
     expect(game.board.reservations.size).toBe(8);

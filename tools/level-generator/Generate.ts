@@ -8,7 +8,8 @@ export function generateLevel(id: number, width: number, height: number, palette
   const sequence: CrateData[] = [];
   let botId = 0;
   while (board.remaining > 0) {
-    const colors = palette.map((_, color) => ({ color, exposed: [...board.exposed].filter(index => board.cells[index] === color).length }));
+    const colors = palette.map((_, color) => ({ color, exposed: board.canClaim(color)
+      ? [...board.exposed].filter(index => board.cells[index] === color).length : 0 }));
     colors.sort((a, b) => b.exposed - a.exposed || ((a.color + id) % palette.length) - ((b.color + id) % palette.length));
     const color = colors[0].color;
     let capacity = 0;
@@ -21,7 +22,7 @@ export function generateLevel(id: number, width: number, height: number, palette
     if (capacity === 0) throw new Error('Could not construct a peeling sequence');
     sequence.push({ color, capacity });
   }
-  level.lanes = Array.from({ length: Config.levels.laneCount }, () => []);
+  level.lanes = Array.from({ length: id < 6 ? 3 : 4 }, () => []);
   sequence.forEach((crate, index) => {
     const lane = (index + id) % level.lanes.length;
     level.lanes[lane].push(crate);

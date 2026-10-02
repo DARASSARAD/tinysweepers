@@ -28,6 +28,23 @@ export class AudioManager {
     oscillator.stop(start + duration);
     oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
   }
+  pop() {
+    if (!this.enabled || this.adMuted || !this.context || this.context.state !== 'running') return;
+    const context = this.context;
+    const start = context.currentTime;
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.frequency.setValueAtTime(620, start);
+    oscillator.frequency.exponentialRampToValueAtTime(140, start + 0.09);
+    gain.gain.setValueAtTime(0.001, start);
+    gain.gain.linearRampToValueAtTime(Config.effects.volume * 1.3, start + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.11);
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start(start);
+    oscillator.stop(start + 0.12);
+    oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+  }
   win() { [523.25, 659.25, 783.99, 1046.5].forEach((note, i) => this.tone(note, 0.25, i * 0.12)); }
   pause() { if (this.context) void this.context.suspend().catch(() => {}); }
   dispose() { if (this.context) void this.context.close().catch(() => {}); }

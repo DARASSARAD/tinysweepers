@@ -8,7 +8,7 @@ export function text(parent: Container, content: string, x: number, y: number, s
   return item;
 }
 
-export function button(parent: Container, content: string, x: number, y: number, width: number, onTap: () => void, fill = '#314c49') {
+export function button(parent: Container, content: string, x: number, y: number, width: number, onTap: () => void, fill = '#176f68') {
   const item = new Container();
   item.position.set(x, y);
   item.addChild(new Graphics().roundRect(-width / 2, -60, width, 120, 30).fill(fill));

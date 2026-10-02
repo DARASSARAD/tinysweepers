@@ -3,9 +3,9 @@
   "width": 19,
   "height": 19,
   "palette": [
-    "#ed55c5",
-    "#63d6e3",
-    "#f7d357"
+    "#ff38d3",
+    "#4be9fb",
+    "#ffe439"
   ],
   "pixels": [
     -1,
@@ -390,32 +390,6 @@
         "capacity": 9
       },
       {
-        "color": 0,
-        "capacity": 9
-      },
-      {
-        "color": 1,
-        "capacity": 9
-      },
-      {
-        "color": 0,
-        "capacity": 9
-      }
-    ],
-    [
-      {
-        "color": 0,
-        "capacity": 9
-      },
-      {
-        "color": 1,
-        "capacity": 9
-      },
-      {
-        "color": 1,
-        "capacity": 9
-      },
-      {
         "color": 1,
         "capacity": 9
       },
@@ -424,7 +398,11 @@
         "capacity": 9
       },
       {
-        "color": 2,
+        "color": 0,
+        "capacity": 9
+      },
+      {
+        "color": 1,
         "capacity": 9
       },
       {
@@ -438,7 +416,7 @@
         "capacity": 9
       },
       {
-        "color": 1,
+        "color": 0,
         "capacity": 9
       },
       {
@@ -454,7 +432,19 @@
         "capacity": 9
       },
       {
+        "color": 0,
+        "capacity": 9
+      },
+      {
+        "color": 0,
+        "capacity": 9
+      },
+      {
         "color": 1,
+        "capacity": 9
+      },
+      {
+        "color": 2,
         "capacity": 9
       },
       {
@@ -472,7 +462,11 @@
         "capacity": 9
       },
       {
-        "color": 0,
+        "color": 1,
+        "capacity": 9
+      },
+      {
+        "color": 1,
         "capacity": 9
       },
       {
@@ -484,11 +478,15 @@
         "capacity": 9
       },
       {
-        "color": 0,
+        "color": 1,
         "capacity": 9
       },
       {
         "color": 2,
+        "capacity": 9
+      },
+      {
+        "color": 0,
         "capacity": 9
       },
       {
@@ -499,34 +497,36 @@
   ],
   "dockCount": 5,
   "solution": [
-    3,
+    1,
+    2,
     0,
     1,
     2,
-    3,
     0,
     1,
     2,
-    3,
     0,
     1,
     2,
-    3,
     0,
     1,
     2,
-    3,
     0,
     1,
     2,
-    3,
     0,
     1,
     2,
-    3,
     0,
     1,
     2,
-    3
-  ]
+    0,
+    1,
+    2,
+    0,
+    1,
+    2
+  ],
+  "blockGap": 0.5,
+  "tileGap": 0.5
 }

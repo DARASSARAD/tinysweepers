@@ -1,4 +1,5 @@
-import { Application, Container, Graphics, Rectangle } from 'pixi.js';
+import { Application, Assets, Container, Graphics, Rectangle, Sprite } from 'pixi.js';
+import logoUrl from '../../TinySweeperdLogo-Photoroom.png?url';
 import { AudioManager } from '../audio/AudioManager';
 import { Config } from '../core/Config';
 import { fitPlayArea } from '../core/Layout';
@@ -12,10 +13,17 @@ import { createAtlas } from './Atlas';
 import { BoardView } from './BoardView';
 import { BotView } from './BotView';
 import { CrateView } from './CrateView';
+import { CrateTweens } from './CrateTweens';
+import type { CrateData } from '../logic/LevelData';
 import { drawDocks } from './DockView';
 import { button, text } from './Elements';
 import { Puffs } from './fx/Puffs';
 import { Pool } from './Pool';
+import { WinScreen } from './WinScreen';
+import { TutorialView } from './TutorialView';
+import { resultTypography } from './ResultTypography';
+import { drawConnections } from './ConnectedCrates';
+import { FeatureUnlock } from './FeatureUnlock';
 
 declare const __PLATFORM__: 'local' | 'poki' | 'crazygames';
 
@@ -55,27 +63,93 @@ export async function createGame() {
   if (requestedIndex >= 0) levelIndex = requestedIndex;
 
   const atlas = createAtlas(app);
+  const logoTexture = await Assets.load(logoUrl);
   const floor = new Graphics();
   const scene = new Container();
   const header = new Container();
   const content = new Container();
   const controls = new Container();
   const modal = new Container();
-  scene.addChild(header, content, controls, modal);
+  const settingsPanel = new Container();
+  settingsPanel.visible = false;
+  scene.addChild(header, content, controls, modal, settingsPanel);
   app.stage.addChild(floor, scene);
-  text(header, 'TINY SWEEPERS', 375, 100, 58);
-  const levelLabel = text(header, '', 375, 166, 31, '#71817a');
-  const counter = text(header, '', 540, 240, 34);
+  const levelLabel = text(header, '', 540, 110, 42);
+  levelLabel.style.fontFamily = 'Arial, Helvetica, sans-serif';
+  levelLabel.style.fontWeight = '800';
+  const counter = text(header, '', 540, 170, 34);
   const progressBar = new Graphics();
   header.addChild(progressBar);
-  const pauseButton = button(header, 'Pause', 905, 125, 170, () => togglePause());
+  const settingsButton = button(header, '', 970, 110, 120, () => toggleSettings());
+  const gear = new Graphics();
+  for (let tooth = 0; tooth < 8; tooth++) {
+    const angle = tooth * Math.PI / 4;
+    const points = [[-7, -34], [7, -34], [7, -21], [-7, -21]]
+      .flatMap(([x, y]) => [x * Math.cos(angle) - y * Math.sin(angle), x * Math.sin(angle) + y * Math.cos(angle)]);
+    gear.poly(points).fill('#fffaf0');
+  }
+  gear.circle(0, 0, 25).fill('#fffaf0').circle(0, 0, 11).fill('#176f68');
+  settingsButton.item.addChild(gear);
+  const settingsBackdrop = new Graphics().rect(0, 0, Config.designWidth, Config.designHeight)
+    .fill({ color: '#243b35', alpha: 0.35 });
+  settingsBackdrop.eventMode = 'static';
+  settingsPanel.addChild(settingsBackdrop);
+  settingsPanel.addChild(new Graphics().roundRect(180, 270, 720, 1420, 45).fill('#fffaf0'));
+  text(settingsPanel, 'Settings', 540, 365, 56);
+  const pauseButton = button(settingsPanel, 'Pause', 540, 500, 460, () => togglePause());
   const guide = text(controls, '', 540, 1470, 30, '#526e65');
-  button(controls, 'Retry', 235, 1820, 220, () => restart());
-  const patternButton = button(controls, '', 540, 1820, 270, () => toggleSymbols());
-  const soundButton = button(controls, '', 845, 1820, 220, () => toggleSound());
+  guide.visible = false;
+  // The queue feeds upward from behind the bottom powerup panel.
+  controls.addChild(new Graphics()
+    .roundRect(0, 1790, Config.designWidth, Config.designHeight - 1790 + 40, 40).fill('#526ca5')
+    .roundRect(0, 1797, Config.designWidth, Config.designHeight - 1797 + 40, 40).fill('#6381b5')
+    .rect(0, 1890, Config.designWidth, 30).fill({ color: '#526ca5', alpha: 0.25 }));
+  // Powerup placeholders are decorative until their gameplay is implemented.
+  for (const [index, unlockLevel] of [4, 6, 9].entries()) {
+    const powerup = new Container();
+    powerup.position.set(540 + (index - 1) * 210, 1810);
+    powerup.addChild(new Graphics().circle(0, 6, 64).fill({ color: '#79604b', alpha: 0.2 })
+      .circle(0, 0, 64).fill('#ffefd1').stroke({ color: '#526ca5', width: 9 })
+      .arc(0, -27, 16, Math.PI, Math.PI * 2).stroke({ color: '#ba7812', width: 7 })
+      .roundRect(-25, -28, 50, 42, 12).fill('#ffc62d').stroke({ color: '#ba7812', width: 3 })
+      .circle(0, -9, 5).fill('#965d09')
+      .rect(-3, -8, 6, 11).fill('#965d09'));
+    text(powerup, `Lv. ${unlockLevel}`, 0, 41, 29, '#705024');
+    controls.addChild(powerup);
+  }
+  button(settingsPanel, 'Retry', 540, 650, 460, () => { toggleSettings(); restart(); });
+  const soundButton = button(settingsPanel, '', 540, 800, 460, () => toggleSound());
+  const patternButton = button(settingsPanel, '', 540, 950, 460, () => toggleSymbols());
+  settingsPanel.addChild(new Graphics().roundRect(240, 1060, 600, 460, 28).fill('#e9ecdf'));
+  text(settingsPanel, 'Choose a level', 540, 1115, 34);
+  const selectedLevelLabel = text(settingsPanel, '', 540, 1190, 30);
+  let selectedLevel = levelIndex;
+  function refreshLevelPicker() {
+    selectedLevelLabel.text = `Level ${selectedLevel + 1} · ${levelNames[selectedLevel]}`;
+    selectedLevelLabel.scale.set(1);
+    selectedLevelLabel.scale.set(Math.min(1, 540 / selectedLevelLabel.width));
+  }
+  button(settingsPanel, 'Previous', 390, 1300, 250, () => {
+    selectedLevel = (selectedLevel - 1 + levels.length) % levels.length;
+    refreshLevelPicker();
+  });
+  button(settingsPanel, 'Next', 690, 1300, 250, () => {
+    selectedLevel = (selectedLevel + 1) % levels.length;
+    refreshLevelPicker();
+  });
+  button(settingsPanel, 'Play level', 540, 1445, 460, () => {
+    if (adBlocked) return;
+    gesture();
+    startLevel(selectedLevel);
+  });
+  button(settingsPanel, 'Close', 540, 1605, 460, () => toggleSettings());
   const botLayer = new Container();
   const botPool = new Pool(() => new BotView(atlas));
   const botViews = new Map<number, BotView>();
+  const crateTweens = new CrateTweens();
+  const laneViews = new Map<CrateData, CrateView>();
+  const pendingDockSounds = new Set<string>();
+  const departingCrates = new Map<number, { x: number; y: number }>();
   let model: GameModel;
   let board: BoardView;
   let puffs: Puffs;
@@ -83,12 +157,26 @@ export async function createGame() {
   let lanes: Container | null = null;
   let dockSignature = '';
   let paused = false;
+  let featureOpen = false;
+  let connectedFeatureClaimed = false;
+  let settingsOpen = false;
   let started = false;
   let hintOverride = '';
   let hintMs = 0;
   let unsubscribe = () => {};
   let lastCommercial = -Infinity;
   const baseHitAreas = new WeakMap<Container, Rectangle>();
+
+  function toggleSettings() {
+    if (featureOpen) return;
+    if (adBlocked) return;
+    settingsOpen = !settingsOpen;
+    settingsPanel.visible = settingsOpen;
+    if (settingsOpen) { selectedLevel = levelIndex; refreshLevelPicker(); }
+    content.eventMode = settingsOpen || paused || model.state !== 'Playing' ? 'none' : 'passive';
+    if (settingsOpen) { audio.pause(); platform.gameplayStop(); }
+    else if (!paused && started && model.state === 'Playing') { gesture(); platform.gameplayStart(); }
+  }
 
   function saveSettings() {
     void platform.saveData(Config.settingsKey, JSON.stringify({ sound: audio.enabled, symbols }));
@@ -114,7 +202,58 @@ export async function createGame() {
     for (const child of container.removeChildren()) child.destroy({ children: true });
   }
 
+  let pendingLevel: number | null = null;
+  let loadingElapsed = 0;
+  let loadingScreen: Container | null = null;
+  let loadingBackground: Graphics | null = null;
+  let loadingRobot: Sprite | null = null;
+  function resizeLoadingBackground() {
+    if (!loadingBackground) return;
+    const { width, height } = app.screen;
+    const layout = fitPlayArea(width, height);
+    loadingBackground.clear().rect(-layout.x / layout.scale, -layout.y / layout.scale,
+      width / layout.scale, height / layout.scale).fill('#0754c4');
+  }
+  let hasStartedLevel = false;
+  let tutorial: TutorialView | null = null;
   function startLevel(index: number) {
+    if (!hasStartedLevel) {
+      hasStartedLevel = true;
+      buildLevel(index);
+      return;
+    }
+    if (pendingLevel !== null) return;
+    pendingLevel = index;
+    loadingElapsed = 0;
+    platform.gameplayStop();
+    scene.eventMode = 'none';
+    loadingScreen = new Container();
+    loadingBackground = new Graphics();
+    loadingScreen.addChild(loadingBackground);
+    resizeLoadingBackground();
+    const logo = new Sprite(logoTexture);
+    logo.anchor.set(0.5);
+    logo.position.set(540, 650);
+    const logoScale = 560 / Math.max(logoTexture.width, logoTexture.height);
+    logo.scale.set(logoScale);
+    loadingScreen.addChild(logo);
+    loadingRobot = new Sprite(atlas.botFace);
+    loadingRobot.anchor.set(0.5);
+    loadingRobot.position.set(540, 1040);
+    loadingRobot.width = loadingRobot.height = 100;
+    loadingRobot.tint = '#18bfa9';
+    loadingScreen.addChild(loadingRobot);
+    text(loadingScreen, `Level ${levels[index].id}`, 540, 1160, 54, '#ffffff');
+    text(loadingScreen, 'Getting ready to sweep…', 540, 1240, 32, '#d5f2ff');
+    scene.addChild(loadingScreen);
+  }
+  function buildLevel(index: number) {
+    tutorial?.destroy({ children: true });
+    tutorial = null;
+    crateTweens.clear();
+    pendingDockSounds.clear();
+    laneViews.clear();
+    departingCrates.clear();
     platform.gameplayStop();
     unsubscribe();
     botViews.forEach(view => { botLayer.removeChild(view); botPool.release(view); });
@@ -125,27 +264,47 @@ export async function createGame() {
     content.eventMode = 'passive';
     docks = lanes = null;
     dockSignature = '';
-    paused = started = false;
+    paused = started = settingsOpen = false;
+    featureOpen = false;
+    settingsPanel.visible = false;
     hintOverride = '';
     hintMs = 0;
     levelIndex = index;
     void platform.saveData(Config.progressKey, String(index));
     model = new GameModel(levels[index]);
-    board = new BoardView(model, atlas, symbols);
+    board = new BoardView(model, symbols);
     content.addChild(board);
-    content.addChild(new Graphics().roundRect(465, 1154, 150, 75, 20).fill('#7b9181')
-      .roundRect(481, 1164, 118, 29, 12).fill('#3f5e53'));
-    text(content, 'DUSTBIN', 540, 1247, 20, '#71817a');
+    content.addChild(new Graphics().roundRect(Config.layout.binX - 75, Config.layout.binY - 36, 150, 75, 20).fill('#58a99a')
+      .roundRect(Config.layout.binX - 59, Config.layout.binY - 26, 118, 29, 12).fill('#176f68'));
+    text(content, 'DUSTBIN', Config.layout.binX, Config.layout.binY + 57, 20, '#71817a');
     puffs = new Puffs();
     content.addChild(botLayer, puffs);
-    levelLabel.text = `Level ${index + 1} · ${levelNames[index]}`;
+    levelLabel.text = `Level ${index + 1}`;
+    if (model.level.id === 1) {
+      tutorial = new TutorialView();
+      controls.addChild(tutorial);
+      tutorial.update(model, 0);
+    }
     pauseButton.label.text = 'Pause';
     drawLanes();
     unsubscribe = model.events.on(event => {
-      if (event.type === 'placed') { audio.tone(220, 0.08); drawLanes(); }
+      if (event.type === 'placed') {
+        tutorial?.placed();
+        audio.tone(220, 0.08);
+        const removed = [...laneViews].filter(([crate]) => !model.dockModel.lanes.some(lane => lane.includes(crate)));
+        event.placements.forEach((placement, i) => {
+          const view = removed[i]?.[1];
+          if (view) departingCrates.set(model.dockModel.docks[placement.dock]!.id, { x: view.x, y: view.y });
+        });
+        drawLanes();
+      }
+      else if (event.type === 'collected') {
+        const position = board.cellPosition(event.cell);
+        puffs.burst(board.x + position.x, board.y + position.y, 0.7, model.level.palette[event.color], true);
+        audio.tone(620 + event.color * 90, 0.08);
+      }
       else if (event.type === 'delivered') {
         puffs.burst(Config.layout.binX, Config.layout.binY);
-        audio.tone(620 + event.color * 90, 0.08);
       } else {
         platform.gameplayStop();
         if (event.state === 'Won') {
@@ -157,40 +316,69 @@ export async function createGame() {
     });
     saveSettings();
     sync();
+    if (model.level.id === 14 && !connectedFeatureClaimed) {
+      featureOpen = true;
+      content.eventMode = 'none';
+      modal.addChild(new FeatureUnlock(() => {
+        gesture();
+        connectedFeatureClaimed = true;
+        featureOpen = false;
+        clear(modal);
+        content.eventMode = 'passive';
+      }));
+    }
   }
 
   function drawLanes() {
+    const previous = new Map(laneViews);
+    laneViews.clear();
+    for (const view of previous.values()) view.parent?.removeChild(view);
     if (lanes) { content.removeChild(lanes); lanes.destroy({ children: true }); }
     const laneGroup = new Container();
     lanes = laneGroup;
     model.dockModel.lanes.forEach((lane, laneIndex) => {
       const x = (Config.designWidth - (model.level.lanes.length - 1) * Config.layout.laneSpacing) / 2
         + laneIndex * Config.layout.laneSpacing;
-      const shown = lane.slice(0, 3);
-      for (let depth = shown.length - 1; depth >= 0; depth--) {
+      const shown = lane;
+      for (let depth = 0; depth < shown.length; depth++) {
+        const old = previous.get(shown[depth]);
         const view = new CrateView(shown[depth], model.level.palette, atlas, symbols,
-          depth === 0 ? () => place(laneIndex) : undefined);
-        view.position.set(x, Config.layout.laneY + depth * 47);
-        view.alpha = depth === 0 ? 1 : 0.58;
+          depth === 0 ? () => place(laneIndex) : undefined, depth === 0);
+        view.scale.set(1);
+        view.position.set(x, Config.layout.laneY - 35 + depth * Config.layout.laneRowSpacing);
+        view.alpha = depth === 0 ? 1 : 0.85;
+        if (old) {
+          const targetY = view.y;
+          view.position.copyFrom(old.position);
+          view.alpha = old.alpha;
+          crateTweens.move(view, x, targetY, 1, depth === 0 ? 1 : 0.85);
+          old.destroy({ children: true });
+          previous.delete(shown[depth]);
+        }
+        laneViews.set(shown[depth], view);
         laneGroup.addChild(view);
       }
-      if (!lane.length) {
-        laneGroup.addChild(new Graphics().roundRect(x - 68, Config.layout.laneY - 60, 136, 120, 24)
-          .stroke({ color: '#c6c9b7', width: 3 }));
-        text(laneGroup, '✓', x, Config.layout.laneY, 40, '#96a590');
-      }
-      text(laneGroup, `${lane.length} ${lane.length === 1 ? 'crate' : 'crates'}`, x, 1720, 24, '#71817a');
     });
     content.addChild(lanes);
-    content.setChildIndex(botLayer, content.children.length - 1);
+    drawConnections(lanes);
+    for (const view of previous.values()) {
+      content.addChild(view);
+      crateTweens.move(view, view.x, view.y - 15, 0.7, 0, true);
+    }
     content.setChildIndex(puffs, content.children.length - 1);
   }
 
   function place(lane: number) {
-    if (paused || adBlocked || document.hidden || model.state !== 'Playing') return;
+    if (featureOpen) return;
+    if (paused || settingsOpen || adBlocked || document.hidden || model.state !== 'Playing') return;
     gesture();
     if (model.placeCrate(lane)) { started = true; if (model.state === 'Playing') platform.gameplayStart(); }
     else if (model.dockModel.full) { hintOverride = 'All docks are busy. Let the bots finish.'; hintMs = 1800; }
+    else if (model.dockModel.peek(lane)?.pairId) {
+      hintOverride = model.dockModel.placementLanes(lane).length === 0
+        ? 'Bring both connected boxes to the front first.' : 'Connected boxes need two free docks.';
+      hintMs = 1800;
+    }
     sync();
   }
   function restart() { if (!adBlocked) { gesture(); startLevel(levelIndex); } }
@@ -205,6 +393,7 @@ export async function createGame() {
     startLevel((levelIndex + 1) % levels.length);
   }
   function togglePause() {
+    if (featureOpen) return;
     if (adBlocked || model.state !== 'Playing') return;
     paused = !paused;
     pauseButton.label.text = paused ? 'Resume' : 'Pause';
@@ -216,29 +405,69 @@ export async function createGame() {
       text(modal, 'Take a breather', 540, 670, 64);
       text(modal, 'Your sweepers will wait for you.', 540, 780, 32, '#71817a');
       button(modal, 'Keep sweeping', 540, 920, 430, togglePause);
-    } else { clear(modal); gesture(); if (started) platform.gameplayStart(); }
-    content.eventMode = paused ? 'none' : 'passive';
+    } else { clear(modal); gesture(); if (started && !settingsOpen) platform.gameplayStart(); }
+    content.eventMode = paused || settingsOpen ? 'none' : 'passive';
     sync();
   }
   function showResult() {
     clear(modal);
     const won = model.state === 'Won';
+    if (won) {
+      modal.addChild(new WinScreen(model.level.id, model.level.pixels.filter(color => color >= 0).length,
+        levelIndex === levels.length - 1, next, restart));
+      content.eventMode = 'none';
+      return;
+    }
     const panelY = won ? 1280 : 540;
     modal.addChild(new Graphics().roundRect(90, panelY, 900, 480, 55).fill({ color: '#fffaf0', alpha: 0.97 })
       .roundRect(90, panelY, 900, 480, 55).stroke({ color: '#d3d9c4', width: 4 }));
-    text(modal, won ? 'Squeaky clean!' : 'The docks are stuck', 540, panelY + 115, won ? 68 : 57);
-    text(modal, won ? 'A little mosaic, beautifully uncovered.' : 'Choose exposed colors to keep bots moving.', 540, panelY + 222, 31, '#71817a');
-    button(modal, won ? (levelIndex === levels.length - 1 ? 'Play again' : 'Next room') : 'Try again', 540, panelY + 370, 410, won ? next : restart);
+    resultTypography(text(modal, 'The docks are stuck', 540, panelY + 115, 62, '#244d58'), 'heading');
+    resultTypography(text(modal, 'Choose exposed colors to keep bots moving.', 540, panelY + 222, 33, '#647781'), 'body');
+    resultTypography(button(modal, 'TRY AGAIN', 540, panelY + 370, 410, restart).label, 'button');
     content.eventMode = 'none';
   }
 
   function sync() {
     board.sync(symbols);
-    const signature = model.dockModel.docks.map(crate => crate ? `${crate.id}:${crate.undelivered}:${model.board.canClaim(crate.color)}` : '-').join('|');
+    const signature = model.dockModel.docks.map(crate => crate ? `${crate.id}:${crate.atDock}:${model.board.canClaim(crate.color)}` : '-').join('|');
     if (signature !== dockSignature) {
+      const oldCrates = new Map<string, CrateView>();
+      for (const dock of docks?.children ?? []) {
+        if (dock instanceof Container) for (const child of dock.children) {
+          if (child instanceof CrateView) {
+            oldCrates.set(child.label, child);
+            child.position.set(child.x + dock.x, child.y + dock.y);
+            dock.removeChild(child);
+          }
+        }
+      }
       if (docks) { content.removeChild(docks); docks.destroy({ children: true }); }
-      docks = drawDocks(content, model, atlas, symbols);
-      content.setChildIndex(botLayer, content.children.length - 1);
+      docks = drawDocks(content, model, atlas, symbols, side => {
+        if (paused || settingsOpen || adBlocked || featureOpen || model.state !== 'Playing') return;
+        gesture();
+        if (model.dockModel.unlockBonus(side)) { audio.pop(); sync(); }
+      });
+      for (const dock of docks.children) {
+        if (dock instanceof Container) for (const child of dock.children) {
+          if (!(child instanceof CrateView)) continue;
+          const old = oldCrates.get(child.label);
+          const origin = departingCrates.get(Number(child.label.replace('dock-crate-', '')));
+          if (origin) pendingDockSounds.add(child.label);
+          if (old || origin) {
+            child.position.set((old?.x ?? origin!.x) - dock.x, (old?.y ?? origin!.y) - dock.y);
+            child.scale.set(old?.scale.x ?? 1);
+            crateTweens.move(child, 0, 0, 1, 1, false, () => {
+              if (pendingDockSounds.delete(child.label)) audio.pop();
+            });
+          }
+          if (old) { old.destroy({ children: true }); oldCrates.delete(child.label); }
+        }
+      }
+      departingCrates.clear();
+      for (const view of oldCrates.values()) {
+        content.addChild(view);
+        crateTweens.move(view, view.x, view.y - 12, 0.5, 0, true);
+      }
       content.setChildIndex(puffs, content.children.length - 1);
       dockSignature = signature;
     }
@@ -253,8 +482,8 @@ export async function createGame() {
     const total = model.level.pixels.filter(color => color >= 0).length;
     const cleaned = total - model.board.remaining;
     counter.text = `${cleaned} / ${total} cubes cleaned`;
-    progressBar.clear().roundRect(140, 283, 800, 13, 6).fill('#d9dbc9');
-    if (cleaned > 0) progressBar.roundRect(140, 283, 800 * cleaned / total, 13, 6).fill('#65b9aa');
+    progressBar.clear().roundRect(140, 200, 800, 13, 6).fill('#d9dbc9');
+    if (cleaned > 0) progressBar.roundRect(140, 200, 800 * cleaned / total, 13, 6).fill('#18bfa9');
     const waiting = model.dockModel.docks.filter(crate => crate && crate.unassigned > 0 && !model.board.canClaim(crate.color)).length;
     guide.text = paused ? 'Paused · take your time' : model.state === 'Won' ? 'Room complete — nice work!'
       : model.state === 'Lost' ? 'Retry and leave room for the outer colors'
@@ -265,7 +494,7 @@ export async function createGame() {
     app.canvas.dataset.state = adBlocked ? 'Ad break' : paused ? 'Paused' : model.state;
     app.canvas.dataset.remaining = String(model.board.remaining);
     app.canvas.dataset.docks = String(occupied);
-    const summary = `Level ${levelIndex + 1}. ${adBlocked ? 'Ad break' : paused ? 'Paused' : model.state}. ${model.board.remaining} cubes remaining. ${occupied} of ${model.level.dockCount} docks occupied.`;
+    const summary = `Level ${levelIndex + 1}. ${adBlocked ? 'Ad break' : paused ? 'Paused' : model.state}. ${model.board.remaining} cubes remaining. ${occupied} of ${model.dockModel.docks.length} docks occupied.`;
     if (status.textContent !== summary) status.textContent = summary;
   }
 
@@ -276,6 +505,7 @@ export async function createGame() {
     const layout = fitPlayArea(width, height);
     scene.scale.set(layout.scale);
     scene.position.set(layout.x, layout.y);
+    resizeLoadingBackground();
     // Keep small-height desktop windows usable with a minimum CSS tap area.
     const minHit = Config.minTapTarget / layout.scale;
     function expandTargets(node: Container) {
@@ -300,6 +530,8 @@ export async function createGame() {
     else app.start();
   }
   function keydown(event: KeyboardEvent) {
+    if (featureOpen) return;
+    if (pendingLevel !== null) return;
     if (event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
     if (event.key.toLowerCase() === 'd') { debugPanel?.toggle(); return; }
     if (adBlocked) return;
@@ -315,8 +547,34 @@ export async function createGame() {
   platform.loadingFinished();
   app.ticker.add(ticker => {
     const delta = Math.min(ticker.deltaMS, Config.motion.maxFrameMs);
-    if (!paused && !adBlocked) { model.update(delta); board.update(delta); puffs.update(delta); hintMs = Math.max(0, hintMs - delta); }
+    if (pendingLevel !== null) {
+      loadingElapsed += delta;
+      if (loadingRobot) loadingRobot.rotation += delta * 0.003;
+      if (loadingElapsed >= 750) {
+        const index = pendingLevel;
+        pendingLevel = null;
+        loadingScreen?.destroy({ children: true });
+        loadingScreen = null;
+        loadingBackground = null;
+        loadingRobot = null;
+        scene.eventMode = 'passive';
+        buildLevel(index);
+        sync();
+      }
+      return;
+    }
+    if (!paused && !settingsOpen && !adBlocked && !featureOpen) { model.update(delta); board.update(delta); puffs.update(delta); hintMs = Math.max(0, hintMs - delta); }
     sync();
+    if (!paused && !settingsOpen && !adBlocked) crateTweens.update(delta);
+    if (lanes) drawConnections(lanes);
+    if (docks) drawConnections(docks);
+    if (tutorial) {
+      tutorial.update(model, paused || settingsOpen || adBlocked ? 0 : delta);
+      if (paused || settingsOpen || adBlocked) tutorial.visible = false;
+    }
+    if (!settingsOpen && !adBlocked) for (const child of modal.children) {
+      if (child instanceof WinScreen) child.update(delta);
+    }
   });
   window.addEventListener('resize', resize);
   window.addEventListener('orientationchange', resize);

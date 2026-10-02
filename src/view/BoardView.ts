@@ -1,42 +1,55 @@
-import { Container, Graphics, Sprite } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 import { Config } from '../core/Config';
 import type { GameModel } from '../logic/GameModel';
-import type { GameAtlas } from './Atlas';
 import { colorMark } from './Elements';
 
 export class BoardView extends Container {
-  private readonly cubes = new Map<number, Sprite>();
+  private readonly cubes = new Map<number, Graphics>();
   private readonly marks = new Map<number, Graphics>();
   private readonly debug = new Graphics();
   private readonly shine = new Graphics();
-  private readonly tiles: Graphics[] = [];
   private shineElapsed = 0;
   readonly cellSize: number;
+  readonly blockSize: number;
 
-  constructor(private readonly model: GameModel, atlas: GameAtlas, symbols: boolean) {
+  constructor(private readonly model: GameModel, symbols: boolean) {
     super();
     const { boardX, boardY, boardSize } = Config.layout;
     this.position.set(boardX, boardY);
     this.cellSize = boardSize / Math.max(model.level.width, model.level.height);
-    const tileGap = Math.min(Config.layout.tileGap, this.cellSize * Config.layout.cellGapRatio);
-    const cubeGap = Math.min(Config.layout.cubeGap, this.cellSize * Config.layout.cellGapRatio);
+    const cubeGap = Math.min(model.level.blockGap ?? Config.layout.cubeGap, this.cellSize * Config.layout.cellGapRatio);
+    this.blockSize = this.cellSize - cubeGap;
     this.addChild(new Graphics().roundRect(-22, -22, boardSize + 44, boardSize + 44, 44).fill('#d8d0be')
-      .roundRect(-16, -20, boardSize + 32, boardSize + 32, 40).fill('#f9f6ed'));
+      .roundRect(-16, -20, boardSize + 32, boardSize + 32, 40).fill('#dfd0c6'));
     model.level.pixels.forEach((color, index) => {
       if (color < 0) return;
       const { x, y } = this.cellPosition(index);
-      // The permanent floor mosaic appears as dust is lifted.
-      const tile = new Graphics().roundRect(x - this.cellSize / 2 + tileGap / 2, y - this.cellSize / 2 + tileGap / 2, this.cellSize - tileGap, this.cellSize - tileGap, Math.min(12, this.cellSize * 0.15))
-        .fill(model.level.palette[color]);
-      tile.alpha = 0.35;
-      this.tiles.push(tile);
-      this.addChild(tile);
-      const cube = new Sprite(atlas.cube);
-      cube.anchor.set(0.5);
+      const size = this.blockSize;
+      const half = size / 2;
+      const depth = Math.max(0.75, Math.min(2.5, size * 0.07));
+      const radius = Math.min(10, size * 0.14);
+      const cubeColor = model.level.palette[color];
+      const cube = new Graphics()
+        // Drop shadow and lower lip create the raised block silhouette.
+        .roundRect(-half + depth, -half + depth, size, size, radius)
+        .fill({ color: '#26342f', alpha: 0.24 })
+        .roundRect(-half, -half, size, size, radius)
+        .fill(cubeColor)
+        // Light catches the upper and left bevels.
+        .moveTo(-half + radius, -half + depth / 2)
+        .lineTo(half - radius, -half + depth / 2)
+        .stroke({ color: '#ffffff', alpha: 0.62, width: depth })
+        .moveTo(-half + depth / 2, -half + radius)
+        .lineTo(-half + depth / 2, half - radius)
+        .stroke({ color: '#ffffff', alpha: 0.38, width: depth })
+        // A shaded lower edge makes the depth visible at small cell sizes.
+        .moveTo(-half + radius, half - depth / 2)
+        .lineTo(half - radius, half - depth / 2)
+        .stroke({ color: '#26342f', alpha: 0.3, width: depth })
+        .moveTo(half - depth / 2, -half + radius)
+        .lineTo(half - depth / 2, half - radius)
+        .stroke({ color: '#26342f', alpha: 0.22, width: depth });
       cube.position.set(x, y);
-      cube.width = this.cellSize - cubeGap;
-      cube.height = this.cellSize - cubeGap;
-      cube.tint = model.level.palette[color];
       this.addChild(cube);
       this.cubes.set(index, cube);
       const mark = colorMark(this, color, x, y - 3, this.cellSize * 0.22);
@@ -47,16 +60,26 @@ export class BoardView extends Container {
   }
 
   cellPosition(index: number) {
-    return { x: (index % this.model.level.width + 0.5) * this.cellSize,
-      y: (Math.floor(index / this.model.level.width) + 0.5) * this.cellSize };
+    return this.gridPosition(index % this.model.level.width, Math.floor(index / this.model.level.width));
+  }
+
+  gridPosition(column: number, row: number) {
+    const offsetX = (Config.layout.boardSize - this.model.level.width * this.cellSize) / 2;
+    const offsetY = (Config.layout.boardSize - this.model.level.height * this.cellSize) / 2;
+    const rawX = offsetX + (column + 0.5) * this.cellSize;
+    const rawY = offsetY + (row + 0.5) * this.cellSize;
+    const center = Config.layout.boardSize / 2;
+    return {
+      x: rawX + (center - rawY) * Config.projection.shearX,
+      y: center + (rawY - center) * Config.projection.scaleY,
+    };
   }
 
   sync(symbols: boolean) {
-    this.tiles.forEach(tile => { tile.alpha = this.model.state === 'Won' ? 1 : 0.35; });
-    const lifted = new Set([...this.model.bots.values()].filter(bot => bot.phase === 'inbound' || bot.phase === 'return').map(bot => bot.cell));
+    const lifted = new Set([...this.model.bots.values()].filter(bot => bot.phase === 'inbound').map(bot => bot.cell));
     for (const [index, cube] of this.cubes) {
       cube.visible = this.model.board.cells[index] >= 0 && !lifted.has(index);
-      cube.alpha = this.model.board.reservations.has(index) ? 0.8 : 1;
+      cube.alpha = 1;
       this.marks.get(index)!.visible = symbols && cube.visible;
     }
     this.debug.clear();
