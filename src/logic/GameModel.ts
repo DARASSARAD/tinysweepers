@@ -46,6 +46,19 @@ export class GameModel {
     if (this.state !== 'Playing') return false;
     const dock = this.dockModel.place(lane);
     if (dock === null) return false;
+    this.activatePlacedCrates(dock);
+    return true;
+  }
+
+  placeBuriedCrate(lane: number, depth: number): boolean {
+    if (this.state !== 'Playing') return false;
+    const dock = this.dockModel.placeBuried(lane, depth);
+    if (dock === null) return false;
+    this.activatePlacedCrates(dock);
+    return true;
+  }
+
+  private activatePlacedCrates(dock: number) {
     for (const bot of this.bots.values()) {
       if (bot.phase !== 'outbound' || bot.elapsed !== 0) continue;
       const slot = this.dockModel.docks.findIndex(crate => crate?.id === bot.crateId);
@@ -67,7 +80,6 @@ export class GameModel {
     this.events.emit({ type: 'placed', dock, placements: this.dockModel.lastPlaced });
     this.dispatch();
     this.checkState();
-    return true;
   }
 
   private dispatch() {
@@ -115,7 +127,8 @@ export class GameModel {
         const spent = Math.min(budget, this.duration(bot) - bot.elapsed);
         bot.elapsed += spent;
         budget -= spent;
-        if (bot.elapsed < this.duration(bot)) break;
+        // Route lengths produce fractional milliseconds; tolerate arithmetic rounding at arrival.
+        if (this.duration(bot) - bot.elapsed > 1e-7) break;
         bot.elapsed = 0;
         if (bot.phase === 'outbound') bot.phase = 'pickup';
         else if (bot.phase === 'pickup') {

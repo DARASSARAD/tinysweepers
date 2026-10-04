@@ -21,13 +21,3 @@ export function button(parent: Container, content: string, x: number, y: number,
   return { item, label };
 }
 
-export function colorMark(parent: Container, color: number, x: number, y: number, size: number, fill = '#314c49') {
-  const mark = new Graphics();
-  if (color % 4 === 0) mark.circle(0, 0, size / 2).stroke({ width: 4, color: fill });
-  else if (color % 4 === 1) mark.poly([0, -size / 2, size / 2, size / 2, -size / 2, size / 2]).stroke({ width: 4, color: fill });
-  else if (color % 4 === 2) mark.rect(-size / 2, -size / 2, size, size).stroke({ width: 4, color: fill });
-  else mark.poly([0, -size / 2, size / 2, 0, 0, size / 2, -size / 2, 0]).stroke({ width: 4, color: fill });
-  mark.position.set(x, y);
-  parent.addChild(mark);
-  return mark;
-}

@@ -3,12 +3,12 @@
   "width": 26,
   "height": 39,
   "palette": [
-    "#a51326",
-    "#ff3039",
-    "#ff6851",
-    "#087c36",
-    "#6ce316",
-    "#fff6cb"
+    "#b70d35",
+    "#ff1313",
+    "#ff7b43",
+    "#078346",
+    "#46f71f",
+    "#fff6c2"
   ],
   "pixels": [
     -1,
@@ -464,33 +464,7 @@
     2,
     2,
     2,
-    2,
     1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    0,
-    0,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
     1,
     1,
     1,
@@ -516,36 +490,10 @@
     2,
     2,
     2,
-    2,
     1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    0,
-    0,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
-    2,
-    1,
-    1,
-    1,
+    5,
+    5,
+    5,
     1,
     1,
     1,
@@ -568,7 +516,59 @@
     2,
     2,
     2,
+    1,
+    5,
+    5,
+    5,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    0,
+    0,
     2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    1,
+    5,
+    5,
+    5,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    0,
+    0,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    1,
     1,
     1,
     1,
@@ -1030,303 +1030,299 @@
   "lanes": [
     [
       {
-        "color": 0,
-        "capacity": 16,
-        "hidden": false
+        "color": 1,
+        "capacity": 16
       },
       {
-        "color": 3,
-        "capacity": 16,
-        "hidden": false
+        "color": 5,
+        "capacity": 1
       },
       {
-        "color": 3,
-        "capacity": 16,
-        "hidden": true
+        "color": 5,
+        "capacity": 1
       },
       {
         "color": 1,
-        "capacity": 16,
-        "hidden": false
+        "capacity": 32,
+        "hidden": true
+      },
+      {
+        "color": 5,
+        "capacity": 1
       },
       {
         "color": 4,
-        "capacity": 16,
-        "hidden": false
+        "capacity": 32
       },
       {
-        "color": 1,
-        "capacity": 16,
-        "hidden": false
+        "color": 5,
+        "capacity": 1
       },
       {
-        "color": 2,
-        "capacity": 16,
-        "hidden": true
-      },
-      {
-        "color": 2,
-        "capacity": 16,
-        "hidden": false
-      },
-      {
-        "color": 2,
-        "capacity": 16,
-        "hidden": false
-      },
-      {
-        "color": 2,
-        "capacity": 16,
-        "hidden": false
-      },
-      {
-        "color": 3,
-        "capacity": 6,
-        "hidden": true
-      },
-      {
-        "color": 1,
+        "color": 5,
         "capacity": 1,
-        "hidden": false
-      }
-    ],
-    [
-      {
-        "color": 0,
-        "capacity": 16,
-        "hidden": false
-      },
-      {
-        "color": 3,
-        "capacity": 16,
-        "hidden": true,
-        "pairId": "level-14-pair-2"
-      },
-      {
-        "color": 4,
-        "capacity": 16,
-        "hidden": false
-      },
-      {
-        "color": 1,
-        "capacity": 16,
-        "hidden": false
-      },
-      {
-        "color": 3,
-        "capacity": 16,
-        "hidden": false
-      },
-      {
-        "color": 1,
-        "capacity": 16,
-        "hidden": true,
-        "pairId": "level-14-pair-4"
-      },
-      {
-        "color": 2,
-        "capacity": 16,
-        "hidden": false
-      },
-      {
-        "color": 2,
-        "capacity": 16,
-        "hidden": false
-      },
-      {
-        "color": 2,
-        "capacity": 16,
-        "hidden": false,
-        "pairId": "level-14-pair-5"
-      },
-      {
-        "color": 3,
-        "capacity": 16,
         "hidden": true
       },
       {
-        "color": 4,
-        "capacity": 4,
-        "hidden": false
+        "color": 5,
+        "capacity": 1
+      },
+      {
+        "color": 5,
+        "capacity": 1
+      },
+      {
+        "color": 5,
+        "capacity": 1
       }
     ],
     [
       {
-        "color": 1,
+        "color": 5,
+        "capacity": 1
+      },
+      {
+        "color": 3,
+        "capacity": 32
+      },
+      {
+        "color": 2,
         "capacity": 16,
-        "hidden": false,
         "pairId": "level-14-pair-1"
       },
       {
-        "color": 0,
-        "capacity": 16,
-        "hidden": false
+        "color": 2,
+        "capacity": 32,
+        "hidden": true
       },
       {
-        "color": 4,
+        "color": 1,
         "capacity": 16,
-        "hidden": false,
         "pairId": "level-14-pair-2"
       },
       {
-        "color": 3,
+        "color": 2,
         "capacity": 16,
-        "hidden": false,
         "pairId": "level-14-pair-3"
       },
       {
         "color": 1,
         "capacity": 16,
+        "pairId": "level-14-pair-4",
         "hidden": true
       },
       {
-        "color": 2,
-        "capacity": 16,
-        "hidden": false
+        "color": 1,
+        "capacity": 14,
+        "pairId": "level-14-pair-5"
       },
       {
         "color": 1,
-        "capacity": 16,
-        "hidden": false,
-        "pairId": "level-14-pair-4"
+        "capacity": 15
       },
       {
-        "color": 2,
-        "capacity": 16,
-        "hidden": false
+        "color": 5,
+        "capacity": 1
       },
       {
-        "color": 1,
-        "capacity": 16,
+        "color": 5,
+        "capacity": 1
+      },
+      {
+        "color": 5,
+        "capacity": 1,
         "hidden": true
+      },
+      {
+        "color": 5,
+        "capacity": 1
+      },
+      {
+        "color": 4,
+        "capacity": 20
+      },
+      {
+        "color": 3,
+        "capacity": 22
+      }
+    ],
+    [
+      {
+        "color": 1,
+        "capacity": 32
+      },
+      {
+        "color": 3,
+        "capacity": 32,
+        "hidden": true
+      },
+      {
+        "color": 1,
+        "capacity": 32
       },
       {
         "color": 0,
+        "capacity": 32,
+        "pairId": "level-14-pair-1"
+      },
+      {
+        "color": 2,
         "capacity": 16,
-        "hidden": false,
+        "pairId": "level-14-pair-2"
+      },
+      {
+        "color": 1,
+        "capacity": 16,
+        "pairId": "level-14-pair-3",
+        "hidden": true
+      },
+      {
+        "color": 2,
+        "capacity": 16,
+        "pairId": "level-14-pair-4"
+      },
+      {
+        "color": 4,
+        "capacity": 32,
         "pairId": "level-14-pair-5"
       },
       {
         "color": 5,
-        "capacity": 16,
-        "hidden": false
+        "capacity": 1
       },
       {
-        "color": 0,
-        "capacity": 4,
-        "hidden": false
+        "color": 5,
+        "capacity": 1
+      },
+      {
+        "color": 3,
+        "capacity": 32,
+        "hidden": true
+      },
+      {
+        "color": 5,
+        "capacity": 1
+      },
+      {
+        "color": 5,
+        "capacity": 1
+      },
+      {
+        "color": 2,
+        "capacity": 32
+      },
+      {
+        "color": 5,
+        "capacity": 1,
+        "hidden": true
+      },
+      {
+        "color": 2,
+        "capacity": 32
       }
     ],
     [
       {
-        "color": 1,
-        "capacity": 16,
-        "hidden": false,
-        "pairId": "level-14-pair-1"
-      },
-      {
-        "color": 4,
-        "capacity": 16,
-        "hidden": false
-      },
-      {
-        "color": 3,
-        "capacity": 16,
-        "hidden": false
-      },
-      {
         "color": 2,
-        "capacity": 16,
-        "hidden": true,
-        "pairId": "level-14-pair-3"
+        "capacity": 14
       },
       {
-        "color": 2,
-        "capacity": 16,
-        "hidden": false
+        "color": 5,
+        "capacity": 1
       },
       {
         "color": 1,
-        "capacity": 16,
-        "hidden": false
+        "capacity": 32
       },
       {
-        "color": 1,
-        "capacity": 16,
-        "hidden": false
+        "color": 5,
+        "capacity": 1
       },
       {
-        "color": 1,
-        "capacity": 16,
+        "color": 5,
+        "capacity": 1,
         "hidden": true
       },
       {
-        "color": 1,
-        "capacity": 16,
-        "hidden": false
+        "color": 0,
+        "capacity": 32
       },
       {
-        "color": 4,
-        "capacity": 16,
-        "hidden": false
+        "color": 5,
+        "capacity": 1
       },
       {
-        "color": 1,
-        "capacity": 16,
-        "hidden": false
+        "color": 5,
+        "capacity": 1
       },
       {
-        "color": 2,
-        "capacity": 3,
+        "color": 5,
+        "capacity": 1,
         "hidden": true
+      },
+      {
+        "color": 5,
+        "capacity": 1
+      },
+      {
+        "color": 0,
+        "capacity": 4
       }
     ]
   ],
   "dockCount": 5,
   "solution": [
     2,
-    0,
-    1,
     2,
     3,
-    0,
+    2,
     1,
-    3,
-    0,
     1,
+    0,
     2,
     0,
     1,
+    0,
+    0,
+    1,
+    1,
+    1,
+    3,
     2,
-    3,
     0,
-    1,
     2,
-    3,
     0,
     1,
-    3,
-    0,
     1,
+    1,
+    0,
+    0,
     2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    3,
-    0,
     1,
     2,
     3,
+    3,
+    2,
     0,
+    2,
+    1,
+    3,
+    2,
+    0,
+    1,
+    0,
+    3,
+    2,
     1,
     2,
     3,
-    0
+    3,
+    3,
+    3,
+    3
   ],
-  "tileGap": 0.5,
-  "blockGap": 0.5
+  "difficulty": "Easy",
+  "sampledWinRate": 63,
+  "blockGap": 0.5,
+  "tileGap": 0.5
 }

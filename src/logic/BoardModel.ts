@@ -3,6 +3,7 @@ import type { LevelData } from './LevelData';
 
 export class BoardModel {
   readonly cells: number[];
+  readonly mysteryCells: Set<number>;
   readonly exposed = new Set<number>();
   readonly reservations = new Map<number, number>();
   readonly exposureChanged = new Events<number>();
@@ -11,6 +12,7 @@ export class BoardModel {
 
   constructor(readonly level: LevelData, private readonly exposureRequired = true) {
     this.cells = [...level.pixels];
+    this.mysteryCells = new Set(level.mysteryCells ?? []);
     this.count = this.cells.filter(color => color >= 0).length;
     this.cells.forEach((color, index) => {
       if (color >= 0 && this.isExposed(index)) this.exposed.add(index);
@@ -57,7 +59,7 @@ export class BoardModel {
 
   canClaim(color: number): boolean {
     for (const index of this.exposed) {
-      if (this.cells[index] === color && !this.reservations.has(index)
+      if (this.cells[index] === color && !this.mysteryCells.has(index) && !this.reservations.has(index)
         && (!this.exposureRequired || this.reachable.has(index))) return true;
     }
     return false;
@@ -68,7 +70,7 @@ export class BoardModel {
     if ([...this.reservations.values()].includes(botId)) return null;
     let target: number | null = null;
     for (const index of this.exposed) {
-      if (this.cells[index] === color && !this.reservations.has(index)
+      if (this.cells[index] === color && !this.mysteryCells.has(index) && !this.reservations.has(index)
         && (!this.exposureRequired || this.reachable.has(index))) {
         const row = Math.floor(index / this.level.width);
         const targetRow = target === null ? -1 : Math.floor(target / this.level.width);
@@ -89,6 +91,7 @@ export class BoardModel {
     this.count--;
     // Only immediate neighbors can become exposed when this cell disappears.
     for (const neighbor of this.neighbors(index)) {
+      this.mysteryCells.delete(neighbor);
       if (this.cells[neighbor] >= 0) this.exposed.add(neighbor);
     }
     this.refreshReachable();

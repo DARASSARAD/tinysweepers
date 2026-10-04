@@ -7,6 +7,16 @@ const pair = (same = false) => [[{ color: 0, capacity: 1, pairId: 'pair' }],
   [{ color: same ? 0 : 1, capacity: 1, pairId: 'pair' }]];
 
 describe('connected crates', () => {
+  it('keeps both docks occupied until both linked crates are empty, then frees both', () => {
+    const docks = new DockModel(pair(), 5);
+    docks.place(0);
+    docks.docks[0]!.atDock = 0;
+    expect(docks.free(0)).toBe(false);
+    expect(docks.docks.slice(0, 2).every(Boolean)).toBe(true);
+    docks.docks[1]!.atDock = 0;
+    expect(docks.free(1)).toBe(true);
+    expect(docks.docks.slice(0, 2)).toEqual([null, null]);
+  });
   it.each([true, false])('places both crates atomically, same color: %s', same => {
     const docks = new DockModel(pair(same), 5);
     expect(docks.place(1)).toBe(0);
@@ -49,6 +59,16 @@ describe('connected crates', () => {
     for (const level of levels) {
       expect(level.lanes.flat().some(crate => crate.pairId)).toBe(level.id >= 14);
     }
+  });
+  it('uses mixed colors in most campaign pairs', () => {
+    const pairs = new Map<string, number[]>();
+    for (const level of levels) for (const crate of level.lanes.flat()) {
+      if (crate.pairId) {
+        const key = `${level.id}:${crate.pairId}`;
+        pairs.set(key, [...(pairs.get(key) ?? []), crate.color]);
+      }
+    }
+    expect([...pairs.values()].filter(([a, b]) => a !== b).length / pairs.size).toBeGreaterThan(0.7);
   });
   it('includes connected pairs deeper in every later level queue', () => {
     for (const level of levels.filter(level => level.id >= 14)) {

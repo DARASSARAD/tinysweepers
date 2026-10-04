@@ -1,3 +1,5 @@
+import type { Difficulty } from './Difficulty';
+
 export interface CrateData { color: number; capacity: number; hidden?: boolean; pairId?: string }
 
 export interface LevelData {
@@ -6,11 +8,15 @@ export interface LevelData {
   height: number;
   palette: string[];
   pixels: number[];
+  mysteryCells?: number[];
   lanes: CrateData[][];
   dockCount: number;
   blockGap?: number;
   tileGap?: number;
   title?: string;
+  difficulty?: Difficulty;
+  /** Wins out of 100 settled random-choice runs, seed 913; excludes boosters. */
+  sampledWinRate?: number;
   solution?: number[];
 }
 
@@ -23,6 +29,8 @@ export function validate(level: LevelData): void {
     throw new Error('Palette must contain hex colors');
   }
   if (level.pixels.length !== level.width * level.height) throw new Error('Pixel count does not match dimensions');
+  if (level.mysteryCells?.some(index => !Number.isInteger(index) || index < 0
+    || index >= level.pixels.length || level.pixels[index] < 0)) throw new Error('Invalid mystery block');
   const counts = level.palette.map(() => 0);
   const capacities = level.palette.map(() => 0);
   for (const color of level.pixels) {

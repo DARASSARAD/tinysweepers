@@ -15,7 +15,7 @@ export class Puffs extends Container {
       const angle = scattered ? Math.random() * Math.PI * 2
         : rotation + (i + Math.random() * 0.8) * Math.PI * 2 / count;
       const distance = 70 * size * (0.45 + Math.random() * 0.9);
-      const particleSize = size * (0.45 + Math.random() * 0.75);
+      const particleSize = size * (0.45 + Math.random() * 0.75) * (scattered ? 2 : 1);
       const startX = x + (Math.random() - 0.5) * 22 * size;
       const startY = y + (Math.random() - 0.5) * 14 * size;
       const shape = this.pool.take();

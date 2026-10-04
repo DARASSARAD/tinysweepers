@@ -1,11 +1,11 @@
 import { Container, Graphics, Rectangle } from 'pixi.js';
 import type { CrateData } from '../logic/LevelData';
 import type { GameAtlas } from './Atlas';
-import { colorMark, text } from './Elements';
+import { text } from './Elements';
 
 export class CrateView extends Container {
   readonly pairId?: string;
-  constructor(crate: CrateData, palette: string[], _atlas: GameAtlas, symbols: boolean, onTap?: () => void, raised = false) {
+  constructor(crate: CrateData, palette: string[], _atlas: GameAtlas, onTap?: () => void, raised = false) {
     super();
     this.pairId = crate.pairId;
     const color = crate.hidden ? '#747780' : palette[crate.color];
@@ -36,7 +36,6 @@ export class CrateView extends Container {
     }
     const count = text(this, crate.hidden ? '?' : `${crate.capacity}`, 0, -4, crate.hidden ? 52 : 42, '#ffffff');
     count.style.stroke = { color: '#24332d', width: 5, join: 'round' };
-    if (!crate.hidden && symbols) colorMark(this, crate.color, 0, 33, 14);
     if (onTap) {
       this.eventMode = 'static';
       this.cursor = 'pointer';

@@ -84,9 +84,28 @@ export class DockModel {
     return dock;
   }
 
+  placeBuried(lane: number, depth: number): number | null {
+    this.lastPlaced = [];
+    if (depth <= 0 || !this.lanes[lane]?.[depth]) return null;
+    const dock = this.docks.indexOf(null);
+    if (dock < 0) return null;
+    const [crate] = this.lanes[lane].splice(depth, 1);
+    crate.hidden = false;
+    this.docks[dock] = { ...crate, id: this.nextCrateId++, unassigned: crate.capacity,
+      undelivered: crate.capacity, atDock: crate.capacity };
+    this.lastPlaced.push({ lane, dock });
+    return dock;
+  }
+
   free(dock: number): boolean {
     const crate = this.docks[dock];
     if (!crate || crate.atDock !== 0) return false;
+    const partner = crate.pairId ? this.docks.findIndex(other => other
+      && other.id !== crate.id && other.pairId === crate.pairId) : -1;
+    if (partner >= 0) {
+      if (this.docks[partner]!.atDock !== 0) return false;
+      this.docks[partner] = null;
+    }
     this.docks[dock] = null;
     return true;
   }

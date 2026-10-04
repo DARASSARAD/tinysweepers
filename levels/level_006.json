@@ -3,11 +3,11 @@
   "width": 26,
   "height": 38,
   "palette": [
-    "#786877",
-    "#ff972a",
-    "#d7c8b5",
-    "#ff7ca9",
-    "#fa740a"
+    "#593659",
+    "#ff9500",
+    "#ffe5b5",
+    "#ff17a2",
+    "#fb5607"
   ],
   "pixels": [
     -1,
@@ -1035,7 +1035,7 @@
         "capacity": 14
       },
       {
-        "color": 2,
+        "color": 1,
         "capacity": 14
       },
       {
@@ -1057,7 +1057,7 @@
     ],
     [
       {
-        "color": 0,
+        "color": 2,
         "capacity": 14
       },
       {
@@ -1081,7 +1081,7 @@
         "capacity": 10
       },
       {
-        "color": 2,
+        "color": 0,
         "capacity": 14
       },
       {
@@ -1107,7 +1107,7 @@
     ],
     [
       {
-        "color": 0,
+        "color": 1,
         "capacity": 14
       },
       {
@@ -1123,32 +1123,32 @@
         "capacity": 14
       },
       {
+        "color": 1,
+        "capacity": 14
+      },
+      {
+        "color": 1,
+        "capacity": 14
+      },
+      {
+        "color": 1,
+        "capacity": 14
+      },
+      {
+        "color": 1,
+        "capacity": 14
+      },
+      {
+        "color": 2,
+        "capacity": 14
+      },
+      {
+        "color": 2,
+        "capacity": 14
+      },
+      {
         "color": 0,
         "capacity": 5
-      },
-      {
-        "color": 1,
-        "capacity": 14
-      },
-      {
-        "color": 1,
-        "capacity": 14
-      },
-      {
-        "color": 1,
-        "capacity": 14
-      },
-      {
-        "color": 2,
-        "capacity": 14
-      },
-      {
-        "color": 2,
-        "capacity": 14
-      },
-      {
-        "color": 1,
-        "capacity": 14
       },
       {
         "color": 1,
@@ -1161,7 +1161,7 @@
     ],
     [
       {
-        "color": 1,
+        "color": 2,
         "capacity": 14
       },
       {
@@ -1193,7 +1193,7 @@
         "capacity": 14
       },
       {
-        "color": 1,
+        "color": 0,
         "capacity": 14
       },
       {
@@ -1216,58 +1216,60 @@
   ],
   "dockCount": 5,
   "solution": [
+    3,
+    3,
+    1,
+    3,
     2,
+    2,
+    2,
+    2,
+    1,
     3,
     0,
+    2,
+    2,
+    3,
+    1,
     1,
     2,
+    1,
+    0,
+    2,
+    2,
+    0,
+    2,
+    3,
+    3,
+    2,
+    1,
+    0,
+    2,
+    2,
+    1,
+    0,
+    3,
+    1,
+    3,
+    1,
+    0,
     3,
     0,
-    1,
-    2,
+    0,
     3,
+    3,
+    3,
+    1,
+    0,
     0,
     1,
-    2,
-    3,
     0,
     1,
-    2,
-    3,
     0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
     0
   ],
   "blockGap": 0.5,
-  "tileGap": 0.5
+  "tileGap": 0.5,
+  "difficulty": "Easy",
+  "sampledWinRate": 71
 }

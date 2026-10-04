@@ -3,12 +3,12 @@
   "width": 28,
   "height": 39,
   "palette": [
-    "#122753",
-    "#ff3926",
+    "#142052",
+    "#ff2900",
     "#fff9e7",
-    "#0bd4f5",
-    "#ffe126",
-    "#ff8700"
+    "#00d4ff",
+    "#ffdd00",
+    "#ff7b00"
   ],
   "pixels": [
     -1,
@@ -1109,7 +1109,7 @@
     [
       {
         "color": 0,
-        "capacity": 16
+        "capacity": 32
       },
       {
         "color": 1,
@@ -1121,14 +1121,10 @@
       },
       {
         "color": 2,
-        "capacity": 16
+        "capacity": 32
       },
       {
         "color": 1,
-        "capacity": 16
-      },
-      {
-        "color": 0,
         "capacity": 16
       },
       {
@@ -1136,50 +1132,52 @@
         "capacity": 16
       },
       {
-        "color": 2,
-        "capacity": 16
+        "color": 1,
+        "capacity": 6
       },
       {
         "color": 1,
         "capacity": 16
       },
       {
-        "color": 2,
+        "color": 3,
         "capacity": 4
       }
     ],
     [
       {
-        "color": 0,
-        "capacity": 16
-      },
-      {
-        "color": 0,
-        "capacity": 16
-      },
-      {
-        "color": 2,
-        "capacity": 16
-      },
-      {
-        "color": 2,
-        "capacity": 16
-      },
-      {
-        "color": 2,
-        "capacity": 16
-      },
-      {
-        "color": 2,
-        "capacity": 16
-      },
-      {
         "color": 3,
         "capacity": 16
       },
       {
-        "color": 1,
+        "color": 4,
         "capacity": 16
+      },
+      {
+        "color": 2,
+        "capacity": 16
+      },
+      {
+        "color": 0,
+        "capacity": 16
+      },
+      {
+        "color": 1,
+        "capacity": 32
+      },
+      {
+        "color": 1,
+        "capacity": 32
+      },
+      {
+        "color": 5,
+        "capacity": 16
+      }
+    ],
+    [
+      {
+        "color": 2,
+        "capacity": 4
       },
       {
         "color": 4,
@@ -1187,16 +1185,6 @@
       },
       {
         "color": 3,
-        "capacity": 4
-      }
-    ],
-    [
-      {
-        "color": 1,
-        "capacity": 16
-      },
-      {
-        "color": 1,
         "capacity": 16
       },
       {
@@ -1204,23 +1192,15 @@
         "capacity": 16
       },
       {
-        "color": 2,
-        "capacity": 16
-      },
-      {
-        "color": 0,
-        "capacity": 16
-      },
-      {
-        "color": 3,
-        "capacity": 16
-      },
-      {
-        "color": 0,
-        "capacity": 16
-      },
-      {
         "color": 1,
+        "capacity": 32
+      },
+      {
+        "color": 0,
+        "capacity": 16
+      },
+      {
+        "color": 5,
         "capacity": 16
       },
       {
@@ -1234,31 +1214,23 @@
     ],
     [
       {
-        "color": 1,
-        "capacity": 16
+        "color": 2,
+        "capacity": 32
       },
       {
-        "color": 1,
-        "capacity": 16
-      },
-      {
-        "color": 1,
-        "capacity": 16
-      },
-      {
-        "color": 5,
-        "capacity": 16
-      },
-      {
-        "color": 5,
-        "capacity": 16
-      },
-      {
-        "color": 4,
+        "color": 2,
         "capacity": 16
       },
       {
         "color": 2,
+        "capacity": 32
+      },
+      {
+        "color": 0,
+        "capacity": 16
+      },
+      {
+        "color": 1,
         "capacity": 16
       },
       {
@@ -1266,53 +1238,48 @@
         "capacity": 16
       },
       {
-        "color": 1,
-        "capacity": 6
+        "color": 0,
+        "capacity": 16
       }
     ]
   ],
   "dockCount": 5,
   "solution": [
     0,
-    1,
-    2,
     3,
+    3,
+    2,
+    0,
+    2,
+    2,
+    1,
     0,
     1,
     2,
     3,
+    2,
     0,
+    2,
+    2,
+    1,
     1,
     2,
-    3,
-    0,
-    1,
     2,
-    3,
+    0,
     0,
     1,
-    2,
-    3,
+    1,
     0,
     1,
-    2,
+    3,
+    3,
+    3,
     3,
     0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2
+    0
   ],
   "tileGap": 0.5,
-  "blockGap": 0.5
+  "blockGap": 0.5,
+  "difficulty": "Easy",
+  "sampledWinRate": 75
 }

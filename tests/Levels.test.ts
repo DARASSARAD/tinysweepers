@@ -5,14 +5,21 @@ import { validate } from '../src/logic/LevelData';
 import { cubeAccessRoute } from '../src/logic/RobotRoute';
 
 describe('authored starter levels', () => {
+  it.each(levels)('level $id has five base docks', level => {
+    expect(level.dockCount).toBe(5);
+  });
   it.each(levels)('level $id uses the campaign crate column count', level => {
     expect(level.lanes).toHaveLength(level.id < 6 ? 3 : 4);
     expect(level.lanes.every(lane => lane.length > 0)).toBe(true);
   });
-  it.each([10, 14, 16])('level %i includes some concealed queue choices', id => {
+  it.each([10, 14, 16, 19])('level %i includes some concealed queue choices', id => {
     const level = levels.find(level => level.id === id)!;
     expect(level.lanes.flat().some(crate => crate.hidden)).toBe(true);
     expect(level.lanes.every(lane => !lane[0].hidden)).toBe(true);
+  });
+  it('level 19 combines mystery crates with connected pairs', () => {
+    const level = levels.find(level => level.id === 19)!;
+    expect(level.lanes.flat().filter(crate => crate.pairId).length).toBeGreaterThanOrEqual(4);
   });
   it.each(levels)('level $id validates and can be won using real bot timing', level => {
     validate(level);

@@ -8,7 +8,6 @@ export class WinScreen extends Container {
   private readonly confetti: Graphics[] = [];
   constructor(level: number, cubes: number, lastLevel: boolean, next: () => void, replay: () => void) {
     super();
-    this.addChild(new Graphics().rect(0, 0, 1080, 1920).fill({ color: '#19243c', alpha: 0.55 }));
     this.card.position.set(540, 950);
     this.addChild(this.card);
     this.card.addChild(new Graphics()

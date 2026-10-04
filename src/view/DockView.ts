@@ -4,10 +4,25 @@ import type { GameAtlas } from './Atlas';
 import { CrateView } from './CrateView';
 import { text } from './Elements';
 import { dockPosition } from '../core/DockLayout';
+import { Config } from '../core/Config';
 
-export function drawDocks(parent: Container, model: GameModel, atlas: GameAtlas, symbols: boolean, unlock?: (side: 'left' | 'right') => void) {
+export function drawDocks(parent: Container, model: GameModel, atlas: GameAtlas, unlock?: (side: 'left' | 'right') => void) {
   const group = new Container();
   parent.addChild(group);
+  // The stepped boundary keeps the two ad/bonus docks inside the dock area.
+  const boundary = new Graphics();
+  const top = Config.layout.dockY + 120;
+  const bottom = Config.layout.dockY + 280;
+  const left = dockPosition(model.level.dockCount, 0, 'left').x + 92;
+  const right = Config.designWidth - left;
+  if (model.level.id > 3) {
+    boundary.moveTo(48, bottom).lineTo(left, bottom).lineTo(left, top)
+      .lineTo(right, top).lineTo(right, bottom).lineTo(Config.designWidth - 48, bottom);
+  } else {
+    boundary.moveTo(48, top).lineTo(Config.designWidth - 48, top);
+  }
+  boundary.stroke({ color: '#6381b5', width: 7, cap: 'round', join: 'round' });
+  group.addChild(boundary);
   model.dockModel.docks.forEach((crate, index) => {
     const dock = new Container();
     dock.position.copyFrom(dockPosition(model.level.dockCount, index, model.dockModel.bonusSides.get(index)));
@@ -15,8 +30,8 @@ export function drawDocks(parent: Container, model: GameModel, atlas: GameAtlas,
       .roundRect(-57, -49, 114, 106, 9).fill('#d5dce0')
       .roundRect(-57, -54, 114, 106, 9).fill('#ffffff')
       .roundRect(-57, -54, 114, 106, 9).stroke({ color: '#e1e5e7', width: 2 }));
-    if (crate && crate.atDock > 0) {
-      const view = new CrateView({ color: crate.color, capacity: crate.atDock, pairId: crate.pairId }, model.level.palette, atlas, symbols, undefined, true);
+    if (crate) {
+      const view = new CrateView({ color: crate.color, capacity: crate.atDock, pairId: crate.pairId }, model.level.palette, atlas, undefined, true);
       view.label = `dock-crate-${crate.id}`;
       view.scale.set(1);
       dock.addChild(view);

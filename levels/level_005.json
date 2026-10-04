@@ -3,12 +3,12 @@
   "width": 23,
   "height": 39,
   "palette": [
-    "#509061",
-    "#3ad449",
-    "#f46d2f",
-    "#ff4789",
-    "#8ff57f",
-    "#fff149"
+    "#087d48",
+    "#46f71f",
+    "#ff7b00",
+    "#ff006e",
+    "#a9ff49",
+    "#ffea00"
   ],
   "pixels": [
     -1,
@@ -913,155 +913,81 @@
   "lanes": [
     [
       {
-        "color": 0,
-        "capacity": 13
-      },
-      {
-        "color": 0,
-        "capacity": 13
-      },
-      {
-        "color": 0,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
         "color": 2,
         "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 2,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 2,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 2,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 0,
-        "capacity": 13
-      },
-      {
-        "color": 2,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 8
-      },
-      {
-        "color": 3,
-        "capacity": 8
-      }
-    ],
-    [
-      {
-        "color": 0,
-        "capacity": 13
-      },
-      {
-        "color": 0,
-        "capacity": 13
-      },
-      {
-        "color": 2,
-        "capacity": 13
-      },
-      {
-        "color": 2,
-        "capacity": 13
-      },
-      {
-        "color": 2,
-        "capacity": 13
-      },
-      {
-        "color": 2,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 3,
-        "capacity": 13
-      },
-      {
-        "color": 4,
-        "capacity": 8
       },
       {
         "color": 2,
         "capacity": 3
+      },
+      {
+        "color": 0,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 2,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 2,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 8
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 0,
+        "capacity": 13
+      },
+      {
+        "color": 0,
+        "capacity": 13
+      },
+      {
+        "color": 3,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
       }
     ],
     [
       {
-        "color": 0,
+        "color": 1,
         "capacity": 13
       },
       {
@@ -1081,39 +1007,7 @@
         "capacity": 13
       },
       {
-        "color": 1,
-        "capacity": 13
-      },
-      {
         "color": 2,
-        "capacity": 13
-      },
-      {
-        "color": 0,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 2,
-        "capacity": 13
-      },
-      {
-        "color": 1,
-        "capacity": 13
-      },
-      {
-        "color": 0,
         "capacity": 13
       },
       {
@@ -1122,6 +1016,112 @@
       },
       {
         "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 0,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 0,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 3,
+        "capacity": 8
+      },
+      {
+        "color": 4,
+        "capacity": 8
+      },
+      {
+        "color": 0,
+        "capacity": 13
+      }
+    ],
+    [
+      {
+        "color": 2,
+        "capacity": 13
+      },
+      {
+        "color": 0,
+        "capacity": 13
+      },
+      {
+        "color": 2,
+        "capacity": 13
+      },
+      {
+        "color": 2,
+        "capacity": 13
+      },
+      {
+        "color": 2,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 2,
+        "capacity": 13
+      },
+      {
+        "color": 0,
+        "capacity": 13
+      },
+      {
+        "color": 2,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 0,
+        "capacity": 13
+      },
+      {
+        "color": 1,
+        "capacity": 13
+      },
+      {
+        "color": 2,
         "capacity": 13
       },
       {
@@ -1136,8 +1136,43 @@
   ],
   "dockCount": 5,
   "solution": [
+    1,
+    2,
+    2,
+    1,
+    0,
+    0,
+    2,
+    2,
+    2,
+    1,
+    1,
     2,
     0,
+    0,
+    0,
+    2,
+    2,
+    1,
+    1,
+    2,
+    2,
+    2,
+    0,
+    0,
+    0,
+    1,
+    2,
+    0,
+    2,
+    1,
+    0,
+    0,
+    2,
+    1,
+    2,
+    0,
+    2,
     1,
     2,
     0,
@@ -1145,52 +1180,19 @@
     2,
     0,
     1,
-    2,
     0,
     1,
-    2,
+    1,
     0,
     1,
-    2,
+    1,
+    1,
     0,
     1,
-    2,
-    0,
-    1,
-    2,
-    0,
-    1,
-    2,
-    0,
-    1,
-    2,
-    0,
-    1,
-    2,
-    0,
-    1,
-    2,
-    0,
-    1,
-    2,
-    0,
-    1,
-    2,
-    0,
-    1,
-    2,
-    0,
-    1,
-    2,
-    0,
-    1,
-    2,
-    0,
-    1,
-    2,
-    0,
-    1
+    0
   ],
   "blockGap": 0.5,
-  "tileGap": 0.5
+  "tileGap": 0.5,
+  "difficulty": "Medium",
+  "sampledWinRate": 55
 }

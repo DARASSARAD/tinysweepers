@@ -1,26 +1,26 @@
 import { Container, Graphics } from 'pixi.js';
 import { Config } from '../core/Config';
 import type { GameModel } from '../logic/GameModel';
-import { colorMark } from './Elements';
+import { text } from './Elements';
 
 export class BoardView extends Container {
   private readonly cubes = new Map<number, Graphics>();
-  private readonly marks = new Map<number, Graphics>();
+  private readonly mysteries = new Map<number, Container>();
   private readonly debug = new Graphics();
   private readonly shine = new Graphics();
   private shineElapsed = 0;
   readonly cellSize: number;
   readonly blockSize: number;
 
-  constructor(private readonly model: GameModel, symbols: boolean) {
+  constructor(private readonly model: GameModel) {
     super();
-    const { boardX, boardY, boardSize } = Config.layout;
+    const { boardX, boardY, boardSize, boardHeight } = Config.layout;
     this.position.set(boardX, boardY);
-    this.cellSize = boardSize / Math.max(model.level.width, model.level.height);
+    this.cellSize = Math.min(boardSize / model.level.width, boardHeight / model.level.height);
     const cubeGap = Math.min(model.level.blockGap ?? Config.layout.cubeGap, this.cellSize * Config.layout.cellGapRatio);
     this.blockSize = this.cellSize - cubeGap;
-    this.addChild(new Graphics().roundRect(-22, -22, boardSize + 44, boardSize + 44, 44).fill('#d8d0be')
-      .roundRect(-16, -20, boardSize + 32, boardSize + 32, 40).fill('#dfd0c6'));
+    this.addChild(new Graphics().roundRect(-22, -22, boardSize + 44, boardHeight + 44, 44).fill('#d8d0be')
+      .roundRect(-16, -20, boardSize + 32, boardHeight + 32, 40).fill('#dfd0c6'));
     model.level.pixels.forEach((color, index) => {
       if (color < 0) return;
       const { x, y } = this.cellPosition(index);
@@ -52,9 +52,18 @@ export class BoardView extends Container {
       cube.position.set(x, y);
       this.addChild(cube);
       this.cubes.set(index, cube);
-      const mark = colorMark(this, color, x, y - 3, this.cellSize * 0.22);
-      mark.visible = symbols;
-      this.marks.set(index, mark);
+      if (model.board.mysteryCells.has(index)) {
+        cube.visible = false;
+        const cover = new Container();
+        cover.position.set(x, y);
+        cover.addChild(new Graphics()
+          .roundRect(-half + depth, -half + depth, size, size, radius).fill('#535963')
+          .roundRect(-half, -half, size, size, radius).fill('#858b94')
+          .roundRect(-half, -half, size, size, radius).stroke({ color: '#cbd0d8', width: 1 }));
+        text(cover, '?', 0, 0, size * 0.72, '#ffffff');
+        this.addChild(cover);
+        this.mysteries.set(index, cover);
+      }
     });
     this.addChild(this.debug, this.shine);
   }
@@ -65,22 +74,25 @@ export class BoardView extends Container {
 
   gridPosition(column: number, row: number) {
     const offsetX = (Config.layout.boardSize - this.model.level.width * this.cellSize) / 2;
-    const offsetY = (Config.layout.boardSize - this.model.level.height * this.cellSize) / 2;
+    const offsetY = (Config.layout.boardHeight - this.model.level.height * this.cellSize) / 2;
     const rawX = offsetX + (column + 0.5) * this.cellSize;
     const rawY = offsetY + (row + 0.5) * this.cellSize;
-    const center = Config.layout.boardSize / 2;
+    const center = Config.layout.boardHeight / 2;
     return {
       x: rawX + (center - rawY) * Config.projection.shearX,
       y: center + (rawY - center) * Config.projection.scaleY,
     };
   }
 
-  sync(symbols: boolean) {
+  sync() {
     const lifted = new Set([...this.model.bots.values()].filter(bot => bot.phase === 'inbound').map(bot => bot.cell));
     for (const [index, cube] of this.cubes) {
-      cube.visible = this.model.board.cells[index] >= 0 && !lifted.has(index);
+      const present = this.model.board.cells[index] >= 0 && !lifted.has(index);
+      const hidden = this.model.board.mysteryCells.has(index);
+      cube.visible = present && !hidden;
+      const cover = this.mysteries.get(index);
+      if (cover) cover.visible = present && hidden;
       cube.alpha = 1;
-      this.marks.get(index)!.visible = symbols && cube.visible;
     }
     this.debug.clear();
     if (Config.debugExposure) {
@@ -100,7 +112,7 @@ export class BoardView extends Container {
     const x = progress * (Config.layout.boardSize + 120) - 60;
     const left = Math.max(0, x - 60);
     const right = Math.min(Config.layout.boardSize, x + 60);
-    if (right > left) this.shine.rect(left, 0, right - left, Config.layout.boardSize)
+    if (right > left) this.shine.rect(left, 0, right - left, Config.layout.boardHeight)
       .fill({ color: '#ffffff', alpha: 0.5 * (1 - progress) });
   }
 }

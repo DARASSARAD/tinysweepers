@@ -23,8 +23,8 @@ export function drawConnections(group: Container) {
   for (const points of pairs.values()) {
     if (points.length !== 2) continue;
     const [a, b] = points;
-    links.moveTo(a.x, a.y + 6).lineTo(b.x, b.y + 6).stroke({ color: '#514b59', width: 18 })
-      .moveTo(a.x, a.y).lineTo(b.x, b.y).stroke({ color: '#dbd5e1', width: 14 })
-      .moveTo(a.x, a.y - 3).lineTo(b.x, b.y - 3).stroke({ color: '#ffffff', alpha: 0.6, width: 3 });
+    links.moveTo(a.x, a.y + 6).lineTo(b.x, b.y + 6).stroke({ color: '#514b59', width: 28 })
+      .moveTo(a.x, a.y).lineTo(b.x, b.y).stroke({ color: '#dbd5e1', width: 22 })
+      .moveTo(a.x, a.y - 3).lineTo(b.x, b.y - 3).stroke({ color: '#ffffff', alpha: 0.6, width: 5 });
   }
 }

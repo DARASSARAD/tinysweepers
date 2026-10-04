@@ -3,13 +3,13 @@
   "width": 33,
   "height": 38,
   "palette": [
-    "#54668c",
-    "#21e4ca",
-    "#416c9f",
-    "#8797b4",
-    "#9eeedd",
-    "#ff3940",
-    "#fff149"
+    "#2647a2",
+    "#00fac8",
+    "#1462cf",
+    "#839eff",
+    "#83ffe2",
+    "#ff1313",
+    "#ffea00"
   ],
   "pixels": [
     -1,
@@ -1271,6 +1271,10 @@
   "lanes": [
     [
       {
+        "color": 4,
+        "capacity": 18
+      },
+      {
         "color": 0,
         "capacity": 18
       },
@@ -1279,7 +1283,7 @@
         "capacity": 18
       },
       {
-        "color": 3,
+        "color": 2,
         "capacity": 18
       },
       {
@@ -1291,7 +1295,7 @@
         "capacity": 18
       },
       {
-        "color": 3,
+        "color": 1,
         "capacity": 18
       },
       {
@@ -1300,11 +1304,7 @@
       },
       {
         "color": 2,
-        "capacity": 18
-      },
-      {
-        "color": 2,
-        "capacity": 18
+        "capacity": 15
       },
       {
         "color": 3,
@@ -1321,7 +1321,7 @@
         "capacity": 18
       },
       {
-        "color": 3,
+        "color": 2,
         "capacity": 18
       },
       {
@@ -1333,7 +1333,7 @@
         "capacity": 18
       },
       {
-        "color": 1,
+        "color": 3,
         "capacity": 18
       },
       {
@@ -1367,7 +1367,31 @@
     ],
     [
       {
+        "color": 1,
+        "capacity": 18
+      },
+      {
+        "color": 3,
+        "capacity": 18
+      },
+      {
+        "color": 1,
+        "capacity": 18
+      },
+      {
         "color": 0,
+        "capacity": 18
+      },
+      {
+        "color": 2,
+        "capacity": 18
+      },
+      {
+        "color": 2,
+        "capacity": 18
+      },
+      {
+        "color": 2,
         "capacity": 18
       },
       {
@@ -1383,31 +1407,7 @@
         "capacity": 18
       },
       {
-        "color": 1,
-        "capacity": 18
-      },
-      {
-        "color": 1,
-        "capacity": 18
-      },
-      {
-        "color": 2,
-        "capacity": 18
-      },
-      {
-        "color": 1,
-        "capacity": 18
-      },
-      {
-        "color": 2,
-        "capacity": 18
-      },
-      {
         "color": 0,
-        "capacity": 18
-      },
-      {
-        "color": 4,
         "capacity": 18
       },
       {
@@ -1437,7 +1437,7 @@
         "capacity": 18
       },
       {
-        "color": 2,
+        "color": 1,
         "capacity": 18
       },
       {
@@ -1453,8 +1453,8 @@
         "capacity": 18
       },
       {
-        "color": 2,
-        "capacity": 15
+        "color": 3,
+        "capacity": 18
       },
       {
         "color": 5,
@@ -1464,53 +1464,55 @@
   ],
   "dockCount": 5,
   "solution": [
+    0,
     1,
-    2,
     3,
+    0,
+    2,
+    0,
+    1,
+    1,
+    1,
     0,
     1,
     2,
     3,
+    3,
+    1,
     0,
+    1,
+    3,
+    2,
+    2,
+    0,
+    3,
+    2,
+    2,
+    3,
+    1,
+    0,
+    2,
+    0,
+    2,
+    3,
+    1,
+    0,
+    0,
+    2,
+    0,
+    1,
+    3,
+    3,
+    2,
     1,
     2,
     3,
-    0,
-    1,
     2,
-    3,
-    0,
     1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2,
-    3,
-    0,
-    1,
-    2
+    3
   ],
   "blockGap": 0.5,
-  "tileGap": 0.5
+  "tileGap": 0.5,
+  "difficulty": "Easy",
+  "sampledWinRate": 69
 }

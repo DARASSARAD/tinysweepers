@@ -142,6 +142,17 @@ describe('game state and bot cycle', () => {
     stuck.placeCrate(1);
     expect(stuck.state).toBe('Lost');
   });
+  it('uses a powerup to move a buried crate directly to a dock', () => {
+    const game = new GameModel({ ...level, lanes: [[
+      { color: 0, capacity: 4 }, { color: 0, capacity: 4, hidden: true },
+    ], [{ color: 1, capacity: 1 }]] });
+    const buried = game.dockModel.lanes[0][1];
+    expect(game.placeBuriedCrate(0, 1)).toBe(true);
+    expect(game.dockModel.docks[0]?.color).toBe(buried.color);
+    expect(game.dockModel.docks[0]?.hidden).toBe(false);
+    expect(game.dockModel.lanes[0][0].hidden).toBe(false);
+    expect(game.dockModel.lanes[0]).not.toContain(buried);
+  });
   it('does not lose while a bot is moving or a dock is free', () => {
     const game = new GameModel({ ...level, dockCount: 1 });
     game.placeCrate(0);
