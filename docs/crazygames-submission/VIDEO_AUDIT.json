@@ -1,0 +1,22 @@
+[
+  {
+    "name": "landscape",
+    "duration": 18,
+    "width": 1920,
+    "height": 1080,
+    "audioDecoded": 0,
+    "level": 19,
+    "title": "Tung Tung Tung Sahur",
+    "bytes": 2615997
+  },
+  {
+    "name": "portrait",
+    "duration": 18,
+    "width": 1080,
+    "height": 1620,
+    "audioDecoded": 0,
+    "level": 19,
+    "title": "Tung Tung Tung Sahur",
+    "bytes": 4240685
+  }
+]

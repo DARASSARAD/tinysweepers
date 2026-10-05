@@ -4,6 +4,8 @@ import { join } from 'node:path';
 const root = process.argv[2] ?? 'dist';
 // Pixi embeds its homepage in shader diagnostic text; it is never requested.
 const allowed = new Set(['http://www.w3.org/1999/xhtml', 'http://www.w3.org/2000/svg', 'http://www.w3.org/1999/xlink', 'http://www.pixijs.com/']);
+// The portal SDK is the only required network resource in CrazyGames builds.
+allowed.add('https://sdk.crazygames.com/crazygames-sdk-v3.js');
 async function scan(dir) {
   const failures = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {

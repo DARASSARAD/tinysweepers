@@ -1,8 +1,8 @@
 # Platform notes
 
-No portal SDK adapters or script URLs have been implemented yet. Verify the official documentation at P6 before adding either SDK.
+CrazyGames SDK v3 Basic Implementation is implemented: awaited initialization, game lifecycle reporting, and fallback when unavailable or disabled. The official localhost SDK and failure scenarios have been tested. Full Launch features and portal certification remain deferred. See [CrazyGames requirements plan](CRAZYGAMES_REQUIREMENTS_PLAN.md).
 
-Local gameplay events, natural-break cooldowns, ad audio/input guards, and save/load are implemented through `PlatformSession`. The local-only simulator exercises playing/blocked/reward-confirmed/reward-failed cases. Portal build modes currently use `LocalPlatform`; their ZIPs are playable offline builds, not verified portal SDK submissions.
+Local gameplay events, natural-break cooldowns, ad audio/input guards, and save/load use `PlatformSession`. The local-only simulator exercises playing/blocked/reward-confirmed/reward-failed cases. CrazyGames builds use the existing CrazyGames adapter with monetization disabled at the session boundary for Basic Launch. Poki uses `LocalPlatform`. Progress remains local; portal acceptance and Full Launch integration have not been certified.
 
 Rendering references checked for P0:
 - https://pixijs.com/llms.txt

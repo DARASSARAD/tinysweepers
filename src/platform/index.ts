@@ -1,9 +1,10 @@
 import { LocalPlatform } from './LocalPlatform';
 import { MockPlatform } from './MockPlatform';
+import { CrazyGamesPlatform } from './CrazyGamesPlatform';
 
 declare const __PLATFORM__: 'local' | 'poki' | 'crazygames';
 
-// Portal builds remain offline-playable pending verified SDK adapters.
 export function createPlatform() {
+  if (__PLATFORM__ === 'crazygames') return new CrazyGamesPlatform();
   return __PLATFORM__ === 'local' ? new MockPlatform() : new LocalPlatform();
 }

@@ -1,6 +1,8 @@
 import { Container, Graphics, Rectangle, Sprite, type Texture } from 'pixi.js';
 import { button, text } from './Elements';
 import { SettingsPanel } from './SettingsPanel';
+import { coinIcon } from './CoinIcon';
+import { settingsGear } from './UITheme';
 
 export class MainMenu extends Container {
   private readonly home = new Container();
@@ -53,21 +55,10 @@ export class MainMenu extends Container {
     this.play.label.style.fontSize = 78;
     this.play.label.style.fontWeight = '900';
     this.play.item.hitArea = new Rectangle(-360, -95, 720, 190);
-    this.home.addChild(new Graphics().roundRect(190, 120, 370, 110, 55).fill({ color: '#226d83', alpha: 0.65 })
-      .circle(210, 175, 59).fill('#bb7d12').circle(210, 168, 55).fill('#ffcb35')
-      .circle(210, 168, 43).stroke({ color: '#fff39b', width: 6 })
-      .poly([210, 137, 219, 157, 242, 160, 225, 175, 229, 198, 210, 187, 191, 198, 195, 175, 178, 160, 201, 157]).fill('#fff3a0'));
+    this.home.addChild(new Graphics().roundRect(190, 120, 370, 110, 55).fill({ color: '#226d83', alpha: 0.65 }),
+      coinIcon(210, 168, 55));
     this.gold = text(this.home, '', 410, 175, 44, '#ffffff');
-    const settingsButton = button(this.home, '', 925, 175, 135, () => this.showSettings(true), '#6381b5');
-    const gear = new Graphics();
-    for (let tooth = 0; tooth < 8; tooth++) {
-      const angle = tooth * Math.PI / 4;
-      gear.poly([[-7, -34], [7, -34], [7, -21], [-7, -21]].flatMap(([x, y]) =>
-        [x * Math.cos(angle) - y * Math.sin(angle), x * Math.sin(angle) + y * Math.cos(angle)])).fill('#fffaf0');
-    }
-    gear.circle(0, 0, 25).fill('#fffaf0').circle(0, 0, 11).fill('#6381b5');
-    settingsButton.item.addChild(gear);
-    settingsButton.item.label = 'Settings';
+    settingsGear(this.home, 925, 175, () => this.showSettings(true));
     this.showSettings(false);
   }
 

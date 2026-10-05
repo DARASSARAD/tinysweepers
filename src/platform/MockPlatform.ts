@@ -12,6 +12,7 @@ export class MockPlatform extends LocalPlatform {
   override gameplayStart() { this.log.push('gameplayStart'); }
   override gameplayStop() { this.log.push('gameplayStop'); }
   override isAdPlaying() { return this.adPlaying; }
+  override canShowRewardedAd() { return this.scenario !== 'blocked'; }
   private async simulate(rewarded: boolean) {
     this.log.push(rewarded ? 'rewardedBreak' : 'commercialBreak');
     if (this.scenario === 'blocked') return false;

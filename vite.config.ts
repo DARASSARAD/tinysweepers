@@ -9,5 +9,9 @@ export default defineConfig(({ mode }) => {
     base: './',
     build: { outDir: `dist/${platform}`, chunkSizeWarningLimit: 1000 },
     define: { __PLATFORM__: JSON.stringify(platform) },
+    plugins: platform === 'crazygames' ? [{
+      name: 'crazygames-sdk',
+      transformIndexHtml: () => [{ tag: 'script', attrs: { src: 'https://sdk.crazygames.com/crazygames-sdk-v3.js' }, injectTo: 'head' as const }],
+    }] : [],
   };
 });

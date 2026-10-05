@@ -21,7 +21,7 @@ npm run package -- local
 
 Other build modes: `npm run build -- --mode poki` and `npm run build -- --mode crazygames`.
 
-The playable game has 31 puzzles, five charging docks, colored crate stacks, animated sweepers, retry/next flow, saved progress, and sound. Portal SDKs are not implemented yet.
+The playable game has 36 puzzles, five charging docks, colored crate stacks, animated sweepers, retry/next flow, saved progress, and sound. CrazyGames SDK v3 Basic Implementation is tested locally; Full Launch features and portal certification remain deferred. The CrazyGames build targets Basic Launch with monetization disabled. See [requirements and remaining checks](docs/CRAZYGAMES_REQUIREMENTS_PLAN.md).
 
 Level 1, **Starlight heart**, follows the supplied pink/cyan/yellow heart reference. Open `http://127.0.0.1:5173/?level=1` to play it directly.
 
@@ -40,3 +40,6 @@ npm run generate:heart
 ```
 
 The generator validates capacities and searches for a solution. The campaign tests also run each level through the actual bot timing model. Built-in campaign art is original ASCII pixel art, with no downloaded assets.
+# UI design
+
+Follow [UI_DESIGN.md](UI_DESIGN.md) when changing menus, result panels, HUD controls, or settings.

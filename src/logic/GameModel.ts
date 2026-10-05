@@ -50,6 +50,57 @@ export class GameModel {
     return true;
   }
 
+  shuffleCrates(random: () => number = Math.random): boolean {
+    if (this.state !== 'Playing') return false;
+    const lanes = this.dockModel.lanes;
+    const free = this.dockModel.docks.filter(crate => !crate).length;
+    const candidates = lanes.flatMap((lane, column) => lane.map((crate, depth) => ({ crate, column, depth })))
+      .filter(({ crate }) => this.board.canClaim(crate.color) && (crate.pairId
+        ? this.dockModel.docks.slice(0, this.dockModel.baseCount).filter(item => !item).length >= 2
+          && lanes.flat().filter(item => item.pairId === crate.pairId).length === 2
+        : free >= 1));
+    if (!candidates.length) return false;
+    const selected = candidates[Math.min(candidates.length - 1, Math.floor(random() * candidates.length))];
+    // Shuffle single crates in their existing slots; preserve connected-pair ordering.
+    for (const lane of lanes) {
+      const singles = lane.filter(crate => !crate.pairId);
+      for (let i = singles.length - 1; i > 0; i--) {
+        const j = Math.min(i, Math.floor(random() * (i + 1)));
+        [singles[i], singles[j]] = [singles[j], singles[i]];
+      }
+      let next = 0;
+      lane.forEach((crate, index) => { if (!crate.pairId) lane[index] = singles[next++]; });
+    }
+    for (const lane of lanes) {
+      const index = lane.findIndex(crate => crate === selected.crate
+        || !!selected.crate.pairId && crate.pairId === selected.crate.pairId);
+      if (index >= 0) lane.unshift(...lane.splice(index, 1));
+      if (lane[0]) lane[0].hidden = false;
+    }
+    return true;
+  }
+
+  vacuumColor(cell: number): boolean {
+    if (this.state !== 'Playing' || !Number.isInteger(cell) || (this.board.cells[cell] ?? -1) < 0) return false;
+    const color = this.board.cells[cell];
+    const brokenPairs = new Set<string>();
+    const allCrates = [...this.dockModel.lanes.flat(), ...this.activeCrates.values(),
+      ...this.dockModel.docks.filter((crate): crate is DockedCrate => !!crate)];
+    for (const crate of allCrates) if (crate.color === color && crate.pairId) brokenPairs.add(crate.pairId);
+    for (const crate of allCrates) if (crate.pairId && brokenPairs.has(crate.pairId)) delete crate.pairId;
+    for (const lane of this.dockModel.lanes) {
+      for (let i = lane.length - 1; i >= 0; i--) if (lane[i].color === color) lane.splice(i, 1);
+      if (lane[0]) lane[0].hidden = false;
+    }
+    this.dockModel.docks.forEach((crate, dock) => { if (crate?.color === color) this.dockModel.docks[dock] = null; });
+    for (const [id, crate] of this.activeCrates) if (crate.color === color) this.activeCrates.delete(id);
+    for (const [id, bot] of this.bots) if (bot.color === color) this.bots.delete(id);
+    this.board.removeColor(color);
+    this.dispatch();
+    this.checkState();
+    return true;
+  }
+
   placeBuriedCrate(lane: number, depth: number): boolean {
     if (this.state !== 'Playing') return false;
     const dock = this.dockModel.placeBuried(lane, depth);

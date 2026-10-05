@@ -16,6 +16,29 @@ async function setup() {
   return { adapter, session, muted: () => muted, blocked: () => blocked };
 }
 describe('guarded platform flow', () => {
+  it('Basic Launch never requests ads, blocks input, or changes audio', async () => {
+    const adapter = new MockPlatform();
+    adapter.scenario = 'rewarded-success';
+    const blockInput = vi.fn();
+    const muteAudio = vi.fn();
+    const session = new PlatformSession(adapter, { blockInput, muteAudio }, false);
+    await session.init();
+    expect(session.canShowRewardedAd()).toBe(false);
+    await session.commercialBreak();
+    expect(await session.rewardedBreak()).toBe(false);
+    expect(adapter.log).toEqual(['init']);
+    expect(blockInput).not.toHaveBeenCalled();
+    expect(muteAudio).not.toHaveBeenCalled();
+  });
+  it('offers rewards only after initialization and when the adapter supports them', async () => {
+    const adapter = new MockPlatform();
+    const session = new PlatformSession(adapter, { blockInput: () => {}, muteAudio: () => {} });
+    expect(session.canShowRewardedAd()).toBe(false);
+    await session.init();
+    expect(session.canShowRewardedAd()).toBe(false);
+    adapter.scenario = 'rewarded-success';
+    expect(session.canShowRewardedAd()).toBe(true);
+  });
   it('suppresses duplicate loading and gameplay events', async () => {
     const { adapter, session } = await setup();
     session.loadingFinished(); session.gameplayStart(); session.gameplayStart(); session.gameplayStop(); session.gameplayStop();

@@ -11,7 +11,8 @@ export class PlatformSession implements Platform {
   private ready = false;
   private readonly fallback = new SafeStorage();
 
-  constructor(private readonly adapter: Platform, private readonly hooks: AdHooks) {}
+  constructor(private readonly adapter: Platform, private readonly hooks: AdHooks,
+    private readonly adsEnabled = true) {}
   async init() {
     try { await this.adapter.init(); this.ready = true; }
     catch { this.ready = false; }
@@ -32,9 +33,10 @@ export class PlatformSession implements Platform {
     if (this.ready) this.adapter.gameplayStop();
   }
   isAdPlaying() { return this.adPlaying || this.adapter.isAdPlaying(); }
+  canShowRewardedAd() { return this.adsEnabled && this.ready && (this.adapter.canShowRewardedAd?.() ?? false); }
 
   private async ad(rewarded: boolean): Promise<boolean> {
-    if (!this.ready || this.isAdPlaying()) return false;
+    if (!this.adsEnabled || !this.ready || this.isAdPlaying()) return false;
     this.gameplayStop();
     this.adPlaying = true;
     this.hooks.blockInput(true);

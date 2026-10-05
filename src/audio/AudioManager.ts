@@ -1,7 +1,11 @@
 import { Config } from '../core/Config';
+import pickupSoundUrl from '../../audio/pop.mp3?url';
 
 export class AudioManager {
   private context: AudioContext | null = null;
+  private pickupBuffer: AudioBuffer | null = null;
+  private pickupLoading: Promise<void> | null = null;
+  private readonly pickupSources = new Set<AudioBufferSourceNode>();
   enabled = true;
   musicEnabled = true;
   private musicTimer: ReturnType<typeof setInterval> | null = null;
@@ -12,6 +16,11 @@ export class AudioManager {
     if ((!this.enabled && !this.musicEnabled) || this.adMuted || document.hidden) return;
     try {
       this.context ??= new AudioContext();
+      this.pickupLoading ??= fetch(pickupSoundUrl)
+        .then(response => { if (!response.ok) throw new Error('Pickup audio unavailable'); return response.arrayBuffer(); })
+        .then(data => this.context!.decodeAudioData(data))
+        .then(buffer => { this.pickupBuffer = buffer; })
+        .catch(() => { /* Audio is optional. */ });
       if (this.context.state === 'suspended') void this.context.resume().catch(() => {});
       if (this.musicEnabled && this.musicTimer === null) {
         this.musicTimer = setInterval(() => {
@@ -56,8 +65,23 @@ export class AudioManager {
     oscillator.stop(start + 0.12);
     oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
   }
+  pickup() {
+    if (!this.enabled || this.adMuted || document.hidden || !this.pickupBuffer
+      || !this.context || this.context.state !== 'running') return;
+    const source = this.context.createBufferSource();
+    const gain = this.context.createGain();
+    source.buffer = this.pickupBuffer;
+    gain.gain.value = Config.effects.volume;
+    source.connect(gain);
+    gain.connect(this.context.destination);
+    this.pickupSources.add(source);
+    source.onended = () => { this.pickupSources.delete(source); source.disconnect(); gain.disconnect(); };
+    source.start();
+  }
   win() { [523.25, 659.25, 783.99, 1046.5].forEach((note, i) => this.tone(note, 0.25, i * 0.12)); }
   pause() {
+    for (const source of this.pickupSources) source.stop();
+    this.pickupSources.clear();
     for (const note of this.musicNotes) { note.stop(); note.disconnect(); }
     this.musicNotes.clear();
     if (this.musicTimer !== null) clearInterval(this.musicTimer);

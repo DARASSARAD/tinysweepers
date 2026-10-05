@@ -1,4 +1,5 @@
 export const Config = {
+  development: { levelPicker: true },
   designWidth: 1080,
   designHeight: 1920,
   maxResolution: 2,
@@ -14,8 +15,12 @@ export const Config = {
   progressKey: 'tiny-sweepers-progress-v2',
   settingsKey: 'tiny-sweepers-settings-v1',
   goldKey: 'tiny-sweepers-gold-v1',
+  walletKey: 'tiny-sweepers-wallet-v1',
+  speedKey: 'tiny-sweepers-speed-v1',
   powerupsKey: 'tiny-sweepers-powerups-v1',
   cratePickerUnlockLevel: 5,
+  shuffleUnlockLevel: 8,
+  bigVacuumUnlockLevel: 10,
   levels: { laneCount: 4, earlyCapacity: 6, lateCapacity: 9, maxSolverStates: 30000, settleSteps: 4000 },
   ads: { firstCommercialAfterLevel: 3, cooldownMs: 120000, timeoutMs: 15000, mockDurationMs: 1500 },
 } as const;

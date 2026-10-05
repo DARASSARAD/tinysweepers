@@ -28,6 +28,16 @@ import { BoosterUnlock } from './BoosterUnlock';
 import { boosterTutorialLevel } from '../logic/BoosterTutorial';
 import { MainMenu } from './MainMenu';
 import { SettingsPanel } from './SettingsPanel';
+import { CoinWallet } from '../logic/CoinWallet';
+import { coinIcon } from './CoinIcon';
+import { settingsGear } from './UITheme';
+import { BoosterButton } from './BoosterButton';
+import { NewBoosterUnlock } from './NewBoosterUnlock';
+import { BoosterGuide } from './BoosterGuide';
+import { SpeedBoost } from '../logic/SpeedBoost';
+import { SpeedShop } from './SpeedShop';
+import { SpeedButton } from './SpeedButton';
+import { BoosterShop, boosterPrices, type BoosterKind } from './BoosterShop';
 
 declare const __PLATFORM__: 'local' | 'poki' | 'crazygames';
 
@@ -50,7 +60,7 @@ export async function createGame() {
   const platform = new PlatformSession(adapter, {
     blockInput: blocked => { adBlocked = blocked; },
     muteAudio: muted => { audio.adMuted = muted; if (muted) audio.pause(); else audio.unlock(); },
-  });
+  }, __PLATFORM__ !== 'crazygames'); // Basic Launch has no monetization.
   await platform.init();
   const debugPanel = __PLATFORM__ === 'local' ? createDebugPanel(adapter as MockPlatform, platform) : null;
   let cratePickerCount = 0;
@@ -77,7 +87,25 @@ export async function createGame() {
     const balance = Number(savedGold);
     if (savedGold !== null && Number.isSafeInteger(balance) && balance >= 0) gold = balance;
   } catch { /* Use the starting balance for an unreadable wallet. */ }
-  await platform.saveData(Config.goldKey, String(gold));
+  const wallet = CoinWallet.restore(await platform.loadData(Config.walletKey), gold, cratePickerCount);
+  cratePickerCount = wallet.inventory.cratePicker ?? cratePickerCount;
+  let walletSave = Promise.resolve();
+  function saveWallet() {
+    wallet.inventory.cratePicker = cratePickerCount;
+    const snapshot = wallet.serialize();
+    walletSave = walletSave.catch(() => {}).then(() => platform.saveData(Config.walletKey, snapshot));
+    return walletSave;
+  }
+  await saveWallet();
+  const savedSpeed = await platform.loadData(Config.speedKey);
+  const remainingSpeed = savedSpeed === null ? 300_000 : Number(savedSpeed);
+  const speed = new SpeedBoost(Number.isFinite(remainingSpeed) && remainingSpeed >= 0 ? remainingSpeed : 300_000);
+  let speedCheckpoint = 0;
+  let speedSave = Promise.resolve();
+  function saveSpeed() {
+    const value = String(speed.remainingMs);
+    speedSave = speedSave.catch(() => {}).then(() => platform.saveData(Config.speedKey, value));
+  }
   const requestedLevel = Number(new URLSearchParams(location.search).get('level'));
   const requestedIndex = levels.findIndex(level => level.id === requestedLevel);
   if (requestedIndex >= 0) levelIndex = requestedIndex;
@@ -94,23 +122,60 @@ export async function createGame() {
     { replay: () => requestSettingsAction('replay'), home: () => requestSettingsAction('home') });
   settingsPanel.visible = false;
   scene.addChild(header, content, controls, modal, settingsPanel);
+  const developmentLevelPanel = new Container();
+  let developmentLevelsButton: Container | null = null;
+  developmentLevelPanel.visible = false;
+  if (import.meta.env.DEV && __PLATFORM__ === 'local' && Config.development.levelPicker) {
+    scene.addChild(developmentLevelPanel);
+    const backdrop = new Graphics().rect(0, 0, 1080, 1920).fill({ color: '#173d35', alpha: 0.6 });
+    backdrop.eventMode = 'static';
+    developmentLevelPanel.addChild(backdrop,
+      new Graphics().roundRect(120, 340, 840, 1240, 55).fill('#fff8de'));
+    text(developmentLevelPanel, 'Choose a level', 540, 460, 52, '#36582b');
+    text(developmentLevelPanel, 'Development', 540, 535, 28, '#74633a');
+    button(developmentLevelPanel, '×', 900, 390, 100, closeDevelopmentLevels, '#ed476c');
+    levels.forEach((level, index) => {
+      button(developmentLevelPanel, String(level.id), 240 + index % 6 * 120,
+        680 + Math.floor(index / 6) * 145, 100, () => {
+          closeDevelopmentLevels();
+          gesture();
+          startLevel(index);
+        }, '#6381b5');
+    });
+    developmentLevelsButton = button(controls, 'Levels', 110, 1840, 150, () => {
+      if (adBlocked || featureOpen || pickerActive || vacuumUi || settingsOpen || pendingLevel !== null) return;
+      developmentLevelPanel.visible = true;
+      audio.pause();
+      platform.gameplayStop();
+      content.eventMode = 'none';
+    }, '#6381b5').item;
+  }
+
+  function closeDevelopmentLevels() {
+    developmentLevelPanel.visible = false;
+    content.eventMode = settingsOpen || model.state !== 'Playing' ? 'none' : 'passive';
+    if (started && !settingsOpen && model.state === 'Playing') { gesture(); platform.gameplayStart(); }
+  }
   app.stage.addChild(floor, scene);
   const levelLabel = text(header, '', 540, 110, 42);
   levelLabel.style.fontFamily = 'Arial, Helvetica, sans-serif';
   levelLabel.style.fontWeight = '800';
-  const counter = text(header, '', 540, 170, 34);
+  const counter = text(header, '', 440, 170, 34);
+  const coinHud = new Container();
+  let displayedCoins = wallet.balance;
+  let activeWinScreen: WinScreen | null = null;
+  coinHud.addChild(new Graphics().roundRect(75, 69, 260, 82, 41).fill({ color: '#226d83', alpha: 0.75 }),
+    coinIcon(90, 108, 40));
+  const coinBalance = text(coinHud, '', 222, 110, 36, '#ffffff');
   const progressBar = new Graphics();
   header.addChild(progressBar);
-  const settingsButton = button(header, '', 970, 110, 120, () => toggleSettings());
-  const gear = new Graphics();
-  for (let tooth = 0; tooth < 8; tooth++) {
-    const angle = tooth * Math.PI / 4;
-    const points = [[-7, -34], [7, -34], [7, -21], [-7, -21]]
-      .flatMap(([x, y]) => [x * Math.cos(angle) - y * Math.sin(angle), x * Math.sin(angle) + y * Math.cos(angle)]);
-    gear.poly(points).fill('#fffaf0');
-  }
-  gear.circle(0, 0, 25).fill('#fffaf0').circle(0, 0, 11).fill('#176f68');
-  settingsButton.item.addChild(gear);
+  settingsGear(header, 1000, 110, toggleSettings);
+  const speedButton = new SpeedButton(() => {
+    if (adBlocked || settingsOpen || featureOpen || pickerActive || vacuumUi || model.state !== 'Playing') return;
+    if (speed.remainingMs <= 0) { openSpeedShop(); return; }
+    gesture(); speed.toggle(); saveSpeed();
+  });
+  header.addChild(speedButton);
   const guide = text(controls, '', 540, 1470, 30, '#526e65');
   guide.visible = false;
   // The queue feeds upward from behind the bottom powerup panel.
@@ -118,24 +183,12 @@ export async function createGame() {
     .roundRect(0, 1790, Config.designWidth, Config.designHeight - 1790 + 40, 40).fill('#526ca5')
     .roundRect(0, 1797, Config.designWidth, Config.designHeight - 1797 + 40, 40).fill('#6381b5')
     .rect(0, 1890, Config.designWidth, 30).fill({ color: '#526ca5', alpha: 0.25 }));
-  const pickerPowerup = new Container();
-  pickerPowerup.position.set(330, 1810);
-  pickerPowerup.hitArea = new Rectangle(-76, -76, 152, 152);
-  pickerPowerup.on('pointertap', () => activateCratePicker());
+  const pickerPowerup = new BoosterButton('cratePicker', 330, () => tapBooster('cratePicker', activateCratePicker));
   controls.addChild(pickerPowerup);
-  // The remaining powerups are decorative until their gameplay is implemented.
-  for (const [index, unlockLevel] of [6, 9].entries()) {
-    const powerup = new Container();
-    powerup.position.set(540 + index * 210, 1810);
-    powerup.addChild(new Graphics().circle(0, 6, 64).fill({ color: '#79604b', alpha: 0.2 })
-      .circle(0, 0, 64).fill('#ffefd1').stroke({ color: '#526ca5', width: 9 })
-      .arc(0, -27, 16, Math.PI, Math.PI * 2).stroke({ color: '#ba7812', width: 7 })
-      .roundRect(-25, -28, 50, 42, 12).fill('#ffc62d').stroke({ color: '#ba7812', width: 3 })
-      .circle(0, -9, 5).fill('#965d09')
-      .rect(-3, -8, 6, 11).fill('#965d09'));
-    text(powerup, `Lv. ${unlockLevel}`, 0, 41, 29, '#705024');
-    controls.addChild(powerup);
-  }
+  const shufflePowerup = new BoosterButton('shuffle', 540, () => tapBooster('shuffle', useShuffle));
+  const vacuumPowerup = new BoosterButton('bigVacuum', 750, () => tapBooster('bigVacuum', activateVacuum));
+  controls.addChild(shufflePowerup, vacuumPowerup);
+  if (developmentLevelsButton) controls.setChildIndex(developmentLevelsButton, controls.children.length - 1);
   const botLayer = new Container();
   const botPool = new Pool(() => new BotView(atlas));
   const botViews = new Map<number, BotView>();
@@ -150,11 +203,14 @@ export async function createGame() {
   let lanes: Container | null = null;
   let dockSignature = '';
   let featureOpen = false;
+  let boosterGuide: BoosterGuide | null = null;
+  let guidedBooster: 'cratePicker' | 'shuffle' | 'bigVacuum' | null = null;
   let connectedFeatureClaimed = false;
   let mysteryFeatureClaimed = false;
   let settingsOpen = false;
   let started = false;
   let pickerActive = false;
+  let vacuumUi: Container | null = null;
   let pickerTutorialRequired = false;
   let pickerDepthStart = 1;
   let pickerCameraTarget = 0;
@@ -168,19 +224,22 @@ export async function createGame() {
   const mainMenu = new MainMenu(logoTexture, playFromMenu, toggleSound, toggleMusic, toggleHaptics);
   mainMenu.visible = false;
   scene.addChild(mainMenu);
+  scene.addChild(coinHud);
 
   function refreshMainMenu() {
     const nextIndex = hasStartedLevel && model.state === 'Won' ? Math.min(levelIndex + 1, levels.length - 1) : levelIndex;
-    mainMenu.refresh(levels[nextIndex].id, savedProgress || hasStartedLevel, audio.enabled, gold, audio.musicEnabled, hapticsEnabled);
+    mainMenu.refresh(levels[nextIndex].id, savedProgress || hasStartedLevel, audio.enabled, wallet.balance, audio.musicEnabled, hapticsEnabled);
   }
 
   function showMainMenu() {
     if (adBlocked || pendingLevel !== null) return;
+    speed.reset(); saveSpeed();
     menuOpen = true;
     settingsOpen = false;
     settingsPanel.visible = false;
     header.visible = content.visible = controls.visible = modal.visible = false;
     mainMenu.visible = true;
+    coinHud.visible = false;
     mainMenu.showSettings(false);
     refreshMainMenu();
     audio.pause();
@@ -193,6 +252,7 @@ export async function createGame() {
     if (adBlocked) return;
     menuOpen = false;
     mainMenu.visible = false;
+    coinHud.visible = true;
     header.visible = content.visible = controls.visible = modal.visible = true;
     gesture();
     if (!hasStartedLevel || model.state !== 'Playing') {
@@ -204,18 +264,19 @@ export async function createGame() {
   }
 
   function toggleSettings() {
-    if (featureOpen || pickerActive) return;
+    if (featureOpen || pickerActive || vacuumUi) return;
     if (adBlocked) return;
     settingsPanel.dismissConfirmation();
     settingsOpen = !settingsOpen;
     settingsPanel.visible = settingsOpen;
     content.eventMode = settingsOpen || model.state !== 'Playing' ? 'none' : 'passive';
-    if (settingsOpen) { audio.pause(); platform.gameplayStop(); }
+    if (settingsOpen) { saveSpeed(); audio.pause(); platform.gameplayStop(); }
     else if (started && model.state === 'Playing') { gesture(); platform.gameplayStart(); }
   }
 
   function requestSettingsAction(action: 'replay' | 'home') {
-    if (adBlocked || featureOpen || pickerActive || pendingLevel !== null) return;
+    if (action === 'replay' && activeWinScreen && !activeWinScreen.ready) return;
+    if (adBlocked || featureOpen || pickerActive || vacuumUi || pendingLevel !== null) return;
     if (!settingsOpen) toggleSettings();
     settingsPanel.confirm(action, () => {
       if (action === 'home') showMainMenu();
@@ -233,52 +294,151 @@ export async function createGame() {
     drawPickerPowerup();
   }
   function drawPickerPowerup() {
-    for (const child of pickerPowerup.removeChildren()) child.destroy({ children: true });
-    const unlocked = levelIndex + 1 >= Config.cratePickerUnlockLevel;
-    const available = unlocked && cratePickerCount > 0;
-    pickerPowerup.eventMode = available ? 'static' : 'none';
-    pickerPowerup.cursor = available ? 'pointer' : 'default';
-    pickerPowerup.alpha = 1;
-    if (!unlocked) {
-      pickerPowerup.addChild(new Graphics()
-        .circle(0, 6, 64).fill({ color: '#79604b', alpha: 0.2 })
-        .circle(0, 0, 64).fill('#ffefd1').stroke({ color: '#526ca5', width: 9 })
-        .arc(0, -27, 16, Math.PI, Math.PI * 2).stroke({ color: '#ba7812', width: 7 })
-        .roundRect(-25, -28, 50, 42, 12).fill('#ffc62d').stroke({ color: '#ba7812', width: 3 })
-        .circle(0, -9, 5).fill('#965d09')
-        .rect(-3, -8, 6, 11).fill('#965d09'));
-      text(pickerPowerup, `Lv. ${Config.cratePickerUnlockLevel}`, 0, 41, 29, '#705024');
-      return;
-    }
-    pickerPowerup.addChild(new Graphics()
-      .circle(0, 5, 57).fill({ color: '#263146', alpha: 0.22 })
-      .circle(0, 0, 57).fill('#fff0cd').stroke({ color: '#927454', width: 4 })
-      .circle(0, -2, 52).stroke({ color: '#fff9e8', width: 3 }));
-    const cards = new Container();
-    cards.position.set(-5, -5);
-    const back = new Graphics().roundRect(-29, -31, 46, 63, 8)
-      .fill('#e1e3e8').stroke({ color: '#777a86', width: 3 });
-    back.rotation = -0.3;
-    cards.addChild(back);
-    const front = new Graphics().roundRect(-21, -35, 46, 63, 8)
-      .fill('#ffffff').stroke({ color: '#777a86', width: 3 })
-      .roundRect(-17, -31, 38, 55, 6).stroke({ color: '#e9edf1', width: 2 });
-    front.rotation = 0.12;
-    cards.addChild(front);
-    cards.addChild(new Graphics()
-      .poly([9, -13, 23, -13, 23, -1, 35, -1, 35, 13, 23, 13, 23, 25,
-        9, 25, 9, 13, -3, 13, -3, -1, 9, -1])
-      .fill('#59ce35').stroke({ color: '#ffffff', width: 6, join: 'round' })
-      .poly([9, -13, 23, -13, 23, -1, 35, -1, 35, 13, 23, 13, 23, 25,
-        9, 25, 9, 13, -3, 13, -3, -1, 9, -1])
-      .stroke({ color: '#2c8d2e', width: 3, join: 'round' }));
-    pickerPowerup.addChild(cards);
-    pickerPowerup.addChild(new Graphics().circle(42, 44, 24).fill({ color: '#233c50', alpha: 0.2 })
-      .circle(42, 41, 24).fill('#ffffff').stroke({ color: '#527fa0', width: 3 }));
-    const count = text(pickerPowerup, cratePickerCount > 0 ? String(cratePickerCount) : '+', 42, 41, 29, '#216b9b');
-    count.style.fontWeight = '800';
+    pickerPowerup.refresh(levelIndex + 1, Config.cratePickerUnlockLevel, cratePickerCount);
   }
   function gesture() { audio.unlock(); }
+
+  function guideBooster(kind: 'cratePicker' | 'shuffle' | 'bigVacuum') {
+    clear(modal);
+    featureOpen = true;
+    content.eventMode = 'none';
+    platform.gameplayStop();
+    guidedBooster = kind;
+    const control = kind === 'cratePicker' ? pickerPowerup : kind === 'shuffle' ? shufflePowerup : vacuumPowerup;
+    boosterGuide = new BoosterGuide(control.x, control.label);
+    modal.addChild(boosterGuide);
+  }
+  function tapBooster(kind: 'cratePicker' | 'shuffle' | 'bigVacuum', action: () => void) {
+    if (adBlocked || (guidedBooster && guidedBooster !== kind)) return;
+    if (guidedBooster === kind) {
+      clear(modal); boosterGuide = null; guidedBooster = null;
+      featureOpen = false; content.eventMode = 'passive';
+    }
+    if (featureOpen || settingsOpen || pickerActive || vacuumUi || model.state !== 'Playing') return;
+    const unlock = kind === 'cratePicker' ? Config.cratePickerUnlockLevel : kind === 'shuffle'
+      ? Config.shuffleUnlockLevel : Config.bigVacuumUnlockLevel;
+    if (levelIndex + 1 < unlock) return;
+    const count = kind === 'cratePicker' ? cratePickerCount : wallet.inventory[kind] ?? 0;
+    if (count === 0) { openBoosterShop(kind); return; }
+    action();
+  }
+
+  function openSpeedShop() {
+    gesture(); saveSpeed(); platform.gameplayStop();
+    featureOpen = true; content.eventMode = 'none';
+    const close = () => {
+      if (adBlocked) return;
+      clear(modal); featureOpen = false; content.eventMode = 'passive';
+      app.canvas.dataset.state = model.state;
+      if (started && model.state === 'Playing') platform.gameplayStart();
+    };
+    modal.addChild(new SpeedShop(wallet.balance, (minutes, price) => {
+      if (!featureOpen || adBlocked || !wallet.spend(price)) return;
+      speed.remainingMs += minutes * 60_000;
+      speed.active = true;
+      displayedCoins = wallet.balance;
+      void saveWallet(); void saveSpeed(); audio.pop();
+      close(); sync();
+    }, close, () => { void watchSpeedAd(); }, platform.canShowRewardedAd()));
+    app.canvas.dataset.state = 'Speed shop';
+
+    async function watchSpeedAd() {
+      if (adBlocked || !featureOpen || !platform.canShowRewardedAd()) return;
+      const completed = await platform.rewardedBreak();
+      if (completed) {
+        speed.remainingMs += 180_000;
+        speed.active = true;
+        void saveSpeed();
+      }
+      close(); sync();
+    }
+  }
+
+  function openBoosterShop(kind: BoosterKind) {
+    gesture(); saveSpeed(); platform.gameplayStop();
+    featureOpen = true; content.eventMode = 'none';
+    const close = () => {
+      clear(modal); featureOpen = false; content.eventMode = 'passive';
+      if (started && model.state === 'Playing') platform.gameplayStart();
+    };
+    modal.addChild(new BoosterShop(kind, wallet.balance, () => {
+      if (adBlocked || !wallet.buyPowerup(kind, boosterPrices[kind])) return;
+      if (kind === 'cratePicker') cratePickerCount = wallet.inventory.cratePicker;
+      displayedCoins = wallet.balance;
+      void saveWallet(); drawPickerPowerup(); refreshNewBoosters(); audio.pop();
+      close(); sync();
+    }, close));
+  }
+
+  function refreshNewBoosters() {
+    shufflePowerup.refresh(levelIndex + 1, Config.shuffleUnlockLevel, wallet.inventory.shuffle ?? 0);
+    vacuumPowerup.refresh(levelIndex + 1, Config.bigVacuumUnlockLevel, wallet.inventory.bigVacuum ?? 0);
+  }
+  function boosterAvailable(kind: 'shuffle' | 'bigVacuum', unlock: number) {
+    if (levelIndex + 1 < unlock || settingsOpen || adBlocked || featureOpen || pickerActive
+      || vacuumUi || model.state !== 'Playing') return false;
+    if ((wallet.inventory[kind] ?? 0) > 0) return true;
+    hintOverride = 'No boosters left. Try again with your crates.'; hintMs = 2200;
+    return false;
+  }
+  function useShuffle() {
+    if (!boosterAvailable('shuffle', Config.shuffleUnlockLevel)) return;
+    gesture();
+    if (!model.shuffleCrates()) {
+      hintOverride = 'Shuffle needs a free dock and a reachable matching color.'; hintMs = 2200;
+      return;
+    }
+    wallet.inventory.shuffle--;
+    void saveWallet(); refreshNewBoosters(); drawLanes(); sync(); audio.pop(); vibrate(25);
+    hintOverride = 'A matching crate is now at the front!'; hintMs = 2200;
+  }
+  function closeVacuum() {
+    if (!vacuumUi) return;
+    // Restore the live board before destroying the temporary selection layer.
+    content.addChildAt(board, 0);
+    board.position.set(Config.layout.boardX, Config.layout.boardY);
+    board.scale.set(1);
+    modal.removeChild(vacuumUi); vacuumUi.destroy({ children: true }); vacuumUi = null;
+    if (started && model.state === 'Playing') platform.gameplayStart();
+  }
+  function activateVacuum() {
+    if (!boosterAvailable('bigVacuum', Config.bigVacuumUnlockLevel)) return;
+    gesture(); platform.gameplayStop();
+    vacuumUi = new Container();
+    modal.addChild(vacuumUi);
+    const shade = new Graphics().rect(0, 0, Config.designWidth, Config.designHeight)
+      .fill({ color: '#173d35', alpha: 0.65 });
+    shade.eventMode = 'static';
+    vacuumUi.addChild(shade);
+    const zoom = 1.2;
+    board.position.set((Config.designWidth - Config.layout.boardSize * zoom) / 2, 430);
+    board.scale.set(zoom);
+    vacuumUi.addChild(board);
+    const target = new Graphics().rect(0, 0, Config.layout.boardSize, Config.layout.boardHeight)
+      .fill({ color: '#ffffff', alpha: 0.01 });
+    target.scale.set(zoom);
+    target.position.set(board.x, board.y); target.eventMode = 'static'; target.cursor = 'crosshair';
+    target.on('pointertap', event => {
+      if (adBlocked || settingsOpen) return;
+      const point = target.toLocal(event.global);
+      const x = Math.floor(point.x / board.cellSize); const y = Math.floor(point.y / board.cellSize);
+      if (x < 0 || x >= model.level.width || y < 0 || y >= model.level.height) return;
+      const cell = y * model.level.width + x;
+      if (model.board.cells[cell] < 0) return;
+      const color = model.board.cells[cell];
+      const position = board.cellPosition(cell);
+      closeVacuum();
+      wallet.inventory.bigVacuum--;
+      void saveWallet(); refreshNewBoosters();
+      model.vacuumColor(cell);
+      puffs.burst(board.x + position.x, board.y + position.y, 2, model.level.palette[color], true);
+      drawLanes(); sync(); audio.pop(); vibrate([20, 25, 40]);
+    });
+    vacuumUi.addChild(target);
+    const title = text(vacuumUi, 'Tap a block to vacuum its entire color', 540, 315, 35, '#fff8de');
+    title.style.fontFamily = 'Trebuchet MS, sans-serif';
+    button(vacuumUi, 'Cancel', 540, 1350, 250, closeVacuum, '#6381b5');
+  }
   function toggleSound() {
     if (adBlocked) return;
     audio.enabled = !audio.enabled;
@@ -318,16 +478,14 @@ export async function createGame() {
   function resizeLoadingBackground() {
     if (!loadingBackground) return;
     const { width, height } = app.screen;
-    const layout = fitPlayArea(width, height);
-    loadingBackground.clear().rect(-layout.x / layout.scale, -layout.y / layout.scale,
-      width / layout.scale, height / layout.scale).fill('#0754c4');
+    loadingBackground.clear().rect(-scene.x / scene.scale.x, -scene.y / scene.scale.y,
+      width / scene.scale.x, height / scene.scale.y).fill('#0754c4');
   }
   function resizeResultBackdrop() {
     if (!resultBackdrop) return;
     const { width, height } = app.screen;
-    const layout = fitPlayArea(width, height);
-    resultBackdrop.clear().rect(-layout.x / layout.scale, -layout.y / layout.scale,
-      width / layout.scale, height / layout.scale).fill({ color: '#19243c', alpha: 0.72 });
+    resultBackdrop.clear().rect(-scene.x / scene.scale.x, -scene.y / scene.scale.y,
+      width / scene.scale.x, height / scene.scale.y).fill({ color: '#19243c', alpha: 0.72 });
   }
   let hasStartedLevel = false;
   let tutorial: TutorialView | null = null;
@@ -363,6 +521,10 @@ export async function createGame() {
     scene.addChild(loadingScreen);
   }
   function buildLevel(index: number) {
+    speed.reset(); saveSpeed();
+    activeWinScreen = null;
+    displayedCoins = wallet.balance;
+    wallet.beginAttempt();
     tutorial?.destroy({ children: true });
     tutorial = null;
     crateTweens.clear();
@@ -378,6 +540,7 @@ export async function createGame() {
     clear(modal);
     resultBackdrop = null;
     pickerUi = null;
+    vacuumUi = null;
     pickerActive = false;
     pickerCameraTarget = 0;
     content.y = 0;
@@ -386,6 +549,8 @@ export async function createGame() {
     dockSignature = '';
     started = settingsOpen = false;
     featureOpen = false;
+    boosterGuide = null;
+    guidedBooster = null;
     settingsPanel.visible = false;
     hintOverride = '';
     hintMs = 0;
@@ -395,9 +560,27 @@ export async function createGame() {
     pickerTutorialRequired = boosterTutorial;
     if (boosterTutorial) {
       cratePickerCount++;
-      void platform.saveData(Config.powerupsKey, JSON.stringify({ cratePickerCount }));
+      void saveWallet();
     }
     model = new GameModel(boosterTutorial ? boosterTutorialLevel(levels[index]) : levels[index]);
+    let newBooster: 'shuffle' | 'bigVacuum' | null = null;
+    for (const [kind, unlock] of [['shuffle', Config.shuffleUnlockLevel], ['bigVacuum', Config.bigVacuumUnlockLevel]] as const) {
+      if (index + 1 >= unlock && !wallet.inventory[`${kind}Unlocked`]) {
+        wallet.inventory[`${kind}Unlocked`] = 1;
+        wallet.inventory[kind] = (wallet.inventory[kind] ?? 0) + 1;
+        if (index + 1 === unlock) newBooster = kind;
+        void saveWallet();
+      }
+      // Replaying an introduction level always offers its guided practice.
+      if (index + 1 === unlock) {
+        newBooster = kind;
+        if (!(wallet.inventory[kind] > 0)) {
+          wallet.inventory[kind] = 1;
+          void saveWallet();
+        }
+      }
+    }
+    refreshNewBoosters();
     board = new BoardView(model);
     content.addChild(board);
     content.addChild(new Graphics().roundRect(Config.layout.binX - 60, Config.layout.binY - 60, 120, 120, 8).fill('#58a99a')
@@ -427,17 +610,18 @@ export async function createGame() {
       else if (event.type === 'collected') {
         const position = board.cellPosition(event.cell);
         puffs.burst(board.x + position.x, board.y + position.y, 0.7, model.level.palette[event.color], true);
-        audio.tone(620 + event.color * 90, 0.08);
+        audio.pickup();
       }
       else if (event.type === 'delivered') {
         puffs.burst(Config.layout.binX, Config.layout.binY);
       } else {
+        speed.reset(); saveSpeed();
         platform.gameplayStop();
         if (event.state === 'Won') {
           audio.win();
           vibrate([30, 40, 60]);
-          gold += 50;
-          void platform.saveData(Config.goldKey, String(gold));
+          displayedCoins = wallet.balance;
+          if (wallet.awardWin()) void saveWallet();
           void platform.saveData(Config.progressKey, String(Math.min(index + 1, levels.length - 1)));
         }
         showResult();
@@ -445,15 +629,19 @@ export async function createGame() {
     });
     saveSettings();
     sync();
+    if (newBooster) {
+      const kind = newBooster;
+      featureOpen = true; content.eventMode = 'none';
+      modal.addChild(new NewBoosterUnlock(kind, () => {
+        gesture(); guideBooster(kind);
+      }));
+    }
     if (boosterTutorial) {
       featureOpen = true;
       content.eventMode = 'none';
       modal.addChild(new BoosterUnlock(() => {
         gesture();
-        featureOpen = false;
-        clear(modal);
-        content.eventMode = 'passive';
-        activateCratePicker();
+        guideBooster('cratePicker');
       }));
     }
     if (model.level.id === 14 && !connectedFeatureClaimed) {
@@ -512,7 +700,7 @@ export async function createGame() {
     deeper.item.eventMode = pickerDepthStart < deepestStart ? 'static' : 'none';
   }
   function activateCratePicker() {
-    if (levelIndex + 1 < Config.cratePickerUnlockLevel || cratePickerCount <= 0 || pickerActive
+    if (levelIndex + 1 < Config.cratePickerUnlockLevel || cratePickerCount <= 0 || pickerActive || vacuumUi
       || settingsOpen || adBlocked || featureOpen || model.state !== 'Playing') return;
     if (model.dockModel.full || maxBuriedDepth() === 0) {
       hintOverride = model.dockModel.full ? 'The powerup needs a free dock.' : 'There are no buried crates left.';
@@ -543,7 +731,7 @@ export async function createGame() {
       pickerTutorialRequired = false;
       cratePickerCount--;
       saveSettings();
-      void platform.saveData(Config.powerupsKey, JSON.stringify({ cratePickerCount }));
+      void saveWallet();
       audio.pop();
       started = true;
     }
@@ -600,7 +788,7 @@ export async function createGame() {
   }
 
   function place(lane: number) {
-    if (featureOpen || pickerActive) return;
+    if (featureOpen || pickerActive || vacuumUi) return;
     if (pickerTutorialRequired) { activateCratePicker(); return; }
     if (settingsOpen || adBlocked || document.hidden || model.state !== 'Playing') return;
     gesture();
@@ -613,8 +801,9 @@ export async function createGame() {
     }
     sync();
   }
-  function restart() { if (!adBlocked) { gesture(); startLevel(levelIndex); } }
+  function restart() { if (!adBlocked && (!activeWinScreen || activeWinScreen.ready)) { gesture(); startLevel(levelIndex); } }
   async function next() {
+    if (activeWinScreen && !activeWinScreen.ready) return;
     if (adBlocked) return;
     gesture();
     if (model.state !== 'Won') return;
@@ -631,8 +820,19 @@ export async function createGame() {
     resizeResultBackdrop();
     const won = model.state === 'Won';
     if (won) {
-      modal.addChild(new WinScreen(model.level.id, model.level.pixels.filter(color => color >= 0).length,
-        levelIndex === levels.length - 1, next, restart));
+      activeWinScreen = new WinScreen(model.level.id, levelIndex === levels.length - 1, next, async () => {
+        const screen = activeWinScreen;
+        gesture();
+        const completed = await platform.rewardedBreak();
+        if (screen !== activeWinScreen || model.state !== 'Won') return false;
+        if (!wallet.doubleWinReward(completed)) return false;
+        void saveWallet();
+        return true;
+      }, () => {
+        displayedCoins = Math.min(wallet.balance, displayedCoins + 5);
+        audio.tone(850 + (displayedCoins % 50) * 8, 0.05);
+      }, platform.canShowRewardedAd());
+      modal.addChild(activeWinScreen);
       content.eventMode = 'none';
       return;
     }
@@ -696,6 +896,10 @@ export async function createGame() {
     const total = model.level.pixels.filter(color => color >= 0).length;
     const cleaned = total - model.board.remaining;
     counter.text = `${cleaned} / ${total} cubes cleaned`;
+    coinBalance.text = displayedCoins.toLocaleString();
+    coinBalance.scale.set(1);
+    coinBalance.scale.set(Math.min(1, 175 / coinBalance.width));
+    app.canvas.dataset.coins = String(wallet.balance);
     progressBar.clear().roundRect(140, 200, 800, 13, 6).fill('#d9dbc9');
     if (cleaned > 0) progressBar.roundRect(140, 200, 800 * cleaned / total, 13, 6).fill('#18bfa9');
     const waiting = model.dockModel.docks.filter(crate => crate && crate.unassigned > 0 && !model.board.canClaim(crate.color)).length;
@@ -713,11 +917,19 @@ export async function createGame() {
     if (status.textContent !== summary) status.textContent = summary;
   }
 
+  const safeAreaProbe = document.createElement('div');
+  safeAreaProbe.className = 'safe-area-probe';
+  safeAreaProbe.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(safeAreaProbe);
   function resize() {
     app.resize();
     app.renderer.resolution = Math.min(window.devicePixelRatio || 1, Config.maxResolution);
     const { width, height } = app.screen;
-    const layout = fitPlayArea(width, height);
+    const padding = getComputedStyle(safeAreaProbe);
+    const layout = fitPlayArea(width, height, {
+      top: parseFloat(padding.paddingTop) || 0, right: parseFloat(padding.paddingRight) || 0,
+      bottom: parseFloat(padding.paddingBottom) || 0, left: parseFloat(padding.paddingLeft) || 0,
+    });
     scene.scale.set(layout.scale);
     scene.position.set(layout.x, layout.y);
     resizeLoadingBackground();
@@ -743,10 +955,14 @@ export async function createGame() {
     }
   }
   function visibility() {
-    if (document.hidden) { app.stop(); audio.pause(); platform.gameplayStop(); }
+    if (document.hidden) { saveSpeed(); app.stop(); audio.pause(); }
     else app.start();
   }
   function keydown(event: KeyboardEvent) {
+    if (developmentLevelPanel.visible) {
+      if (event.key === 'Escape') closeDevelopmentLevels();
+      return;
+    }
     if (menuOpen) {
       if (event.repeat || event.ctrlKey || event.altKey || event.metaKey) return;
       if (event.key === 'Enter') playFromMenu();
@@ -770,11 +986,12 @@ export async function createGame() {
     else if (event.key.toLowerCase() === 'm') toggleSound();
   }
 
-  if (requestedIndex >= 0) startLevel(levelIndex);
+  if (requestedIndex >= 0 || !savedProgress) startLevel(levelIndex);
   else showMainMenu();
   platform.loadingFinished();
   app.ticker.add(ticker => {
     if (menuOpen) return;
+    if (developmentLevelPanel.visible) return;
     const delta = Math.min(ticker.deltaMS, Config.motion.maxFrameMs);
     if (pendingLevel !== null) {
       loadingElapsed += delta;
@@ -792,12 +1009,23 @@ export async function createGame() {
       }
       return;
     }
-    if (!settingsOpen && !adBlocked && !featureOpen && !pickerActive) {
-      model.update(delta); board.update(delta); puffs.update(delta); hintMs = Math.max(0, hintMs - delta);
+    let gameplayDelta = delta;
+    if (!document.hidden && model.state === 'Playing' && !settingsOpen && !adBlocked && !featureOpen && !pickerActive && !vacuumUi) {
+      // Report the playable board, including onboarding, before the first tap.
+      started = true;
+      platform.gameplayStart();
+      const realDelta = Math.max(0, ticker.deltaMS);
+      gameplayDelta = speed.advance(realDelta, delta);
+      if (speed.active) speedCheckpoint += realDelta;
+      if (speedCheckpoint >= 5000 || (gameplayDelta > delta && !speed.active)) {
+        speedCheckpoint = 0; saveSpeed();
+      }
+      model.update(gameplayDelta); board.update(gameplayDelta); puffs.update(gameplayDelta); hintMs = Math.max(0, hintMs - gameplayDelta);
     }
+    speedButton.refresh(speed.active, speed.remainingMs);
     content.y += (pickerCameraTarget - content.y) * Math.min(1, delta / 140);
     sync();
-    if (!settingsOpen && !adBlocked) crateTweens.update(delta);
+    if (!settingsOpen && !adBlocked) crateTweens.update(gameplayDelta);
     if (lanes) drawConnections(lanes);
     if (docks) drawConnections(docks);
     if (tutorial) {
@@ -805,13 +1033,17 @@ export async function createGame() {
       if (settingsOpen || adBlocked || pickerActive) tutorial.visible = false;
     }
     if (!settingsOpen && !adBlocked) for (const child of modal.children) {
-      if (child instanceof WinScreen || child instanceof LoseScreen) child.update(delta);
+      if (child instanceof WinScreen || child instanceof LoseScreen || child instanceof BoosterGuide) child.update(delta);
     }
   });
   window.addEventListener('resize', resize);
   window.addEventListener('orientationchange', resize);
   document.addEventListener('visibilitychange', visibility);
   window.addEventListener('keydown', keydown);
+  const resumeAudio = () => { if (!menuOpen && !adBlocked) gesture(); };
+  const preventContextMenu = (event: Event) => event.preventDefault();
+  app.canvas.addEventListener('pointerup', resumeAudio);
+  app.canvas.addEventListener('contextmenu', preventContextMenu);
   resize();
   visibility();
   if (import.meta.hot) import.meta.hot.dispose(() => {
@@ -820,6 +1052,9 @@ export async function createGame() {
     window.removeEventListener('orientationchange', resize);
     document.removeEventListener('visibilitychange', visibility);
     window.removeEventListener('keydown', keydown);
+    app.canvas.removeEventListener('pointerup', resumeAudio);
+    app.canvas.removeEventListener('contextmenu', preventContextMenu);
+    safeAreaProbe.remove();
     status.remove();
     debugPanel?.dispose();
     botPool.dispose(view => view.destroy({ children: true }));

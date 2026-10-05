@@ -1,0 +1,38 @@
+[
+  {
+    "file": "cover-landscape-v3.png",
+    "width": 1920,
+    "height": 1080,
+    "bytes": 4394045
+  },
+  {
+    "file": "cover-portrait-v3.png",
+    "width": 800,
+    "height": 1200,
+    "bytes": 2254636
+  },
+  {
+    "file": "cover-square-v3.png",
+    "width": 800,
+    "height": 800,
+    "bytes": 1525722
+  },
+  {
+    "file": "preview-landscape.webm",
+    "width": 1920,
+    "height": 1080,
+    "seconds": 18,
+    "fps": 15,
+    "audio": false,
+    "bytes": 2615997
+  },
+  {
+    "file": "preview-portrait.webm",
+    "width": 1080,
+    "height": 1620,
+    "seconds": 18,
+    "fps": 15,
+    "audio": false,
+    "bytes": 4240685
+  }
+]

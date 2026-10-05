@@ -1,0 +1,86 @@
+{
+  "reviewed": "2026-10-05",
+  "target": "Basic Launch, desktop and mobile",
+  "unpackedBytes": 1953826,
+  "fileCount": 16,
+  "zipBytes": 1386095,
+  "zipSHA256": "a0ce69ac84cd1a960be85cd6c6843185445d3eee06e69cf0cb71155a39d04e96",
+  "externalSDKBytesIncluded": false,
+  "checks": {
+    "tests": "43 files, 333 tests passed",
+    "lint": "passed",
+    "typescript": "passed",
+    "crazygamesBuild": "passed",
+    "externalURLs": "passed",
+    "chromeEdgeSmoke": "Previous requirements smoke; current SDK check uses Chrome",
+    "nestedProductionPath": "passed",
+    "basicSDK": "Official localhost SDK and four failure scenarios passed"
+  },
+  "files": [
+    {
+      "file": "assets/browserAll-Cuuvkq9P.js",
+      "bytes": 42676
+    },
+    {
+      "file": "assets/BufferResource-BMii-7dZ.js",
+      "bytes": 11068
+    },
+    {
+      "file": "assets/Cache-DDo62lBW.js",
+      "bytes": 1100
+    },
+    {
+      "file": "assets/CanvasPool-DecUtJxW.js",
+      "bytes": 68480
+    },
+    {
+      "file": "assets/canvasUtils-CxYPZET9.js",
+      "bytes": 6054
+    },
+    {
+      "file": "assets/Filter-Cuc6AtmF.js",
+      "bytes": 42020
+    },
+    {
+      "file": "assets/GCManagedHash-BZeqvyQ1.js",
+      "bytes": 19344
+    },
+    {
+      "file": "assets/getTextureBatchBindGroup-DBCrgHVb.js",
+      "bytes": 344
+    },
+    {
+      "file": "assets/GraphicsContext-CGI71yny.js",
+      "bytes": 61700
+    },
+    {
+      "file": "assets/index-C0SLgx9h.css",
+      "bytes": 1074
+    },
+    {
+      "file": "assets/index-DVGtwdt7.js",
+      "bytes": 457574
+    },
+    {
+      "file": "assets/init-BlHOotIW.js",
+      "bytes": 15389
+    },
+    {
+      "file": "assets/RenderTargetSystem-0BZhCLve.js",
+      "bytes": 58786
+    },
+    {
+      "file": "assets/TinySweeperdLogo-Photoroom-Cnki3Ux0.png",
+      "bytes": 1166774
+    },
+    {
+      "file": "assets/webworkerAll-IA-PaR6p.js",
+      "bytes": 55
+    },
+    {
+      "file": "index.html",
+      "bytes": 1388
+    }
+  ],
+  "levelCount": 36
+}

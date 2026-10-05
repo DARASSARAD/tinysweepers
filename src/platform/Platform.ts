@@ -6,6 +6,7 @@ export interface Platform {
   commercialBreak(): Promise<void>;
   rewardedBreak(): Promise<boolean>;
   isAdPlaying(): boolean;
+  canShowRewardedAd?(): boolean;
   saveData(key: string, value: string): Promise<void>;
   loadData(key: string): Promise<string | null>;
 }

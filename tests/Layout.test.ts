@@ -11,3 +11,14 @@ describe('responsive play area', () => {
     expect(Config.designHeight * layout.scale).toBeLessThanOrEqual(height);
   });
 });
+
+it('keeps the full scene inside asymmetric safe areas', () => {
+  const insets = { top: 59, right: 12, bottom: 34, left: 20 };
+  for (const [width, height] of [[390, 844], [844, 390], [800, 450]]) {
+    const layout = fitPlayArea(width, height, insets);
+    expect(layout.x).toBeGreaterThanOrEqual(insets.left);
+    expect(layout.y).toBeGreaterThanOrEqual(insets.top);
+    expect(layout.x + Config.designWidth * layout.scale).toBeLessThanOrEqual(width - insets.right);
+    expect(layout.y + Config.designHeight * layout.scale).toBeLessThanOrEqual(height - insets.bottom);
+  }
+});

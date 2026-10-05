@@ -44,6 +44,8 @@ Acceptance: launching the game opens the menu; continuing restores progress; ret
 
 ## 4. Coin economy
 
+Implementation update (2026-10-05): the saved wallet starts at 500 for players without one, migrates existing gold and crate-picker inventory, shows coins in the menu and game HUD, and displays +50 on the win screen. Each winning attempt awards once; a new replay can earn another reward. Wallet purchases deduct coins and grant inventory in the same serialized state, with insufficient-funds checks. Rewarded-ad earning, purchase UI, and speed allowance are implemented in their later plan steps.
+
 | Rule | Planned behavior |
 | --- | --- |
 | Starting balance | 500 coins, granted once to a player with no existing wallet |

@@ -36,6 +36,25 @@ export class BoardModel {
 
   get remaining() { return this.count; }
 
+  removeColor(color: number) {
+    const removed: number[] = [];
+    this.cells.forEach((value, index) => {
+      if (value !== color) return;
+      this.cells[index] = -1;
+      this.reservations.delete(index);
+      this.mysteryCells.delete(index);
+      removed.push(index);
+    });
+    if (!removed.length) return 0;
+    this.count -= removed.length;
+    for (const index of removed) for (const neighbor of this.neighbors(index)) this.mysteryCells.delete(neighbor);
+    this.exposed.clear();
+    this.cells.forEach((value, index) => { if (value >= 0 && this.isExposed(index)) this.exposed.add(index); });
+    this.refreshReachable();
+    this.exposureChanged.emit(removed[0]);
+    return removed.length;
+  }
+
   private neighbors(index: number): number[] {
     const { width, height } = this.level;
     const x = index % width;

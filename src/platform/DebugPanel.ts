@@ -24,6 +24,21 @@ export function createDebugPanel(adapter: MockPlatform, session: PlatformSession
     panel.appendChild(button);
   }
   panel.appendChild(result);
+  const resetBoosters = document.createElement('button');
+  resetBoosters.textContent = 'Reset new booster tutorials';
+  resetBoosters.addEventListener('click', async () => {
+    if (session.isAdPlaying()) return;
+    const raw = await session.loadData(Config.walletKey);
+    if (!raw) return;
+    try {
+      const saved = JSON.parse(raw) as { inventory?: Record<string, number> };
+      if (!saved.inventory) return;
+      for (const key of ['shuffle', 'bigVacuum', 'shuffleUnlocked', 'bigVacuumUnlocked']) delete saved.inventory[key];
+      await session.saveData(Config.walletKey, JSON.stringify(saved));
+      location.reload();
+    } catch { result.textContent = 'Could not reset booster tutorials.'; }
+  });
+  panel.appendChild(resetBoosters);
   const reset = document.createElement('button');
   reset.textContent = 'Reset progress';
   reset.addEventListener('click', async () => {
